@@ -89,17 +89,17 @@ class SignUpPageState extends State<SignUpPage> {
                             onPressed: () {},
                             child: Text('Forgot password?'),
                           ),
-                          SizedBox(height: 20),
-                          SizedBox(
-                            height: 47,
-                            width: 280,
-                            child: FloatingActionButton(
-                              onPressed: (){},
-                              backgroundColor: Color.fromARGB(255, 0, 150, 200),
-                              child: Text('Sign Up', style: TextStyle(fontSize: 16, color: Colors.white)),
-                            ),
-                          ),
                         ],
+                      ),
+                      SizedBox(height: 20),
+                      SizedBox(
+                        height: 47,
+                        width: 280,
+                        child: FloatingActionButton(
+                          onPressed: (){},
+                          backgroundColor: Color.fromARGB(255, 0, 150, 200),
+                          child: Text('Sign Up', style: TextStyle(fontSize: 16, color: Colors.white)),
+                        ),
                       ),
                     ],
                   ),
