@@ -23,7 +23,7 @@ class SignUpPageState extends State<SignUpPage> {
                     SizedBox(height: 90),
                     Image.asset('assets/logo_putih.png', scale: 1.5,),
                     SizedBox(height: 30),
-                    Padding(padding: EdgeInsets.fromLTRB(30, 0, 30, 0), child: Text("Log in to your account and start buying your fish.", style: TextStyle(fontSize: 17, color: Colors.white),textAlign: TextAlign.center,),),
+                    Padding(padding: EdgeInsets.fromLTRB(30, 0, 30, 0), child: Text("ADEL CAKEP BANGET", style: TextStyle(fontSize: 17, color: Colors.white),textAlign: TextAlign.center,),),
                     SizedBox(height: 30),
                 ],),),
                 SizedBox(height: 40),
