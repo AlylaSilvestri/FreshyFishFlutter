@@ -11,26 +11,38 @@ class SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  color: Color.fromARGB(255, 0, 150, 200),
-                  child: Column(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                color: Color.fromARGB(255, 0, 150, 200),
+                child: Column(
                   children: [
                     SizedBox(height: 90),
-                    Image.asset('assets/logo_putih.png', scale: 1.5,),
+                    Image.asset(
+                      'assets/logo_putih.png',
+                      scale: 1.5,
+                    ),
                     SizedBox(height: 30),
-                    Padding(padding: EdgeInsets.fromLTRB(30, 0, 30, 0), child: Text("Log in to your account and start buying your fish.", style: TextStyle(fontSize: 17, color: Colors.white),textAlign: TextAlign.center,),),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                      child: Text(
+                        "Log in to your account and start buying your fish.",
+                        style: TextStyle(fontSize: 17, color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                     SizedBox(height: 30),
-                ],),),
-                SizedBox(height: 40),
-
-            ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 40),
+            ],
           ),
         ),
+      ),
     );
   }
 }
