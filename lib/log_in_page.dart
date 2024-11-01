@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/sign_up_page.dart';
 
 class LogInPage extends StatefulWidget {
@@ -72,7 +73,9 @@ class _LogInPageState extends State<LogInPage> {
                       height: 47,
                       width: 280,
                       child: FloatingActionButton(
-                        onPressed: (){},
+                        onPressed: (){
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()) );
+                        },
                         backgroundColor: Color.fromARGB(255, 0, 150, 200),
                         child: Text('Login', style: TextStyle(fontSize: 16, color: Colors.white)),
                       ),
@@ -80,14 +83,14 @@ class _LogInPageState extends State<LogInPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 90),
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Don't have an account? "),
                   TextButton(
                       onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpPage()) );
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SignUpPage()) );
                       },
                       child: Text('Sign up', style: TextStyle(color: Color.fromARGB(255, 0, 150, 200))),
                   ),
