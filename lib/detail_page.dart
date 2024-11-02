@@ -1,55 +1,50 @@
 import 'package:flutter/material.dart';
 
 class DetailPage extends StatelessWidget {
-  const DetailPage({super.key});
+  final String imageUrl;
+  const DetailPage({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Product Details'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.favorite_outline_rounded),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.shopping_cart_checkout),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              color: const Color.fromARGB(255, 0, 150, 200),
-              child: Column(
-                children: [
-                  const SizedBox(height: 50),
-                  Row(
-                    children: [
-                      const SizedBox(width: 20),
-                      Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Hi,',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            'User',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+            Image.asset('assets/Gurame.png', height: MediaQuery.of(context).size.height / 1.8, fit: BoxFit.fill,),
+            const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              child: Text(
+                'Ikan Gurame',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),
+            const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Text('Mau ikan gurame gak?'),
+            ),
+            const Padding(
+                padding: EdgeInsets.all(16.0),
+              child: Text('\Rp 31.000',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500) ,
+              ),
+            ),
+            const SizedBox(height: 30),
           ],
-        ),
-      ),
+        ) ,
+      ) ,
     );
   }
 }

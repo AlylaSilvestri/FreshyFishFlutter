@@ -33,82 +33,100 @@ class ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Text(
-                      "User Name",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        child: Text(
+                          "User Name",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 1),
                   ],
                 ),
               ),
               SizedBox(height: 15),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Address",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+              const Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+                  child: Text(
+                    'johndoe@example.com',
+                    style: TextStyle(
+                      fontSize: 16.0, // Font size for the email
+                      fontWeight: FontWeight.bold, // Make the text bold
+                      color: Colors.blue, // Change the text color
+                      letterSpacing: 1.2, // Add letter spacing for better readability
+                    ),
                   ),
                 ),
+              ),
+              const Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 00.0),
+                  child: Text(
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                    style: TextStyle(
+                      fontSize: 14.0, // Font size for the description
+                      fontWeight: FontWeight.normal, // Regular font weight
+                      color: Colors.black54, // A softer color for the description
+                      letterSpacing: 0.5, // Add letter spacing
+                      height: 1.5, // Increase line height for better readability
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                title: const Text('Saved addresses'),
+                onTap: () {
+                  // Go to saved addresses page
+                },
+                trailing: const Icon(Icons.arrow_forward_ios),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Isi Alamatnya",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Divider(color: Colors.blue, height: 20),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Email",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Isi Emailnya",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Divider(color: Colors.blue, height: 20),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Phone",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Isi Nomornya",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Divider(color: Colors.blue, height: 20),
-              SizedBox(height: 15),
-              Center(
-                child: SizedBox(
-                  height: 47,
-                  width: 200,
-                  child: FloatingActionButton(
-                    onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileEditPage()) );
-                    },
-                    backgroundColor: Color.fromARGB(255, 0, 150, 200),
-                    child: Text('Edit', style: TextStyle(fontSize: 16, color: Colors.white)),
-                  ),
+                  padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ProfileEditPage()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
+                        ),
+                        child: const Text(
+                          'Edit',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
+                        ),
+                        child: const Text(
+                          'Logout',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+
+                  ],
                 ),
               ),
               SizedBox(height: 15),

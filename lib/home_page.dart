@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:freshy_fish/profile_edit_page.dart';
 import 'package:freshy_fish/profile_page.dart';
 import 'cart_page.dart';
-import 'detail_page.dart';
 import 'favorite_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,7 +14,6 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   int cuttenIndex = 0;
   List screens = const [
-    DetailPage(),
     FavoritePage(),
     HomePage(),
     CartPage(),
