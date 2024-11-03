@@ -25,14 +25,13 @@ class ProfilePageState extends State<ProfilePage> {
                   children: [
                     SizedBox(height: 50),
                     Image.asset('assets/logo_putih.png', scale: 1.5),
-                    SizedBox(height: 30),
+                    SizedBox(height: 20),
                     CircleAvatar(
                       radius: 70,
                       backgroundImage: NetworkImage(
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHDT8TZp9Ized8FRjPMwrliwxAbd6JqlxZqQ&s',
                       ),
                     ),
-                    SizedBox(height: 10),
                     const Align(
                       alignment: Alignment.center,
                       child: Padding(
@@ -47,7 +46,6 @@ class ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 1),
                   ],
                 ),
               ),
@@ -85,9 +83,17 @@ class ProfilePageState extends State<ProfilePage> {
               ),
               const Divider(),
               ListTile(
-                title: const Text('Saved addresses'),
+                title: const Text('Saved Addresses'),
                 onTap: () {
                   // Go to saved addresses page
+                },
+                trailing: const Icon(Icons.arrow_forward_ios),
+              ),
+              const Divider(),
+              ListTile(
+                title: const Text('Order History'),
+                onTap: () {
+                  // Go to order history page
                 },
                 trailing: const Icon(Icons.arrow_forward_ios),
               ),

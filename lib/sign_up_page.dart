@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/Models/user.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/log_in_page.dart';
+import 'package:http/http.dart' as http;
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -12,6 +14,7 @@ class SignUpPage extends StatefulWidget {
 
 class SignUpPageState extends State<SignUpPage> {
   bool passwordVisible = false;
+  User user = new User();
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +40,11 @@ class SignUpPageState extends State<SignUpPage> {
                   child: Column(
                     children: [
                       TextField(
+                        onChanged: (name){
+                          user.name = name;
+                          },
                         decoration: InputDecoration(
-                          labelText: 'Username',
+                          labelText: 'Name',
                           prefixIcon: Icon(Icons.person_rounded),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
@@ -47,6 +53,9 @@ class SignUpPageState extends State<SignUpPage> {
                       ),
                       SizedBox(height: 16),
                       TextField(
+                        onChanged: (email){
+                          user.email = email;
+                        },
                         decoration: InputDecoration(
                           labelText: 'Email',
                           prefixIcon: Icon(Icons.email_rounded),
@@ -57,6 +66,9 @@ class SignUpPageState extends State<SignUpPage> {
                       ),
                       SizedBox(height: 16),
                       TextField(
+                        onChanged: (password){
+                          user.password = password;
+                        },
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -68,6 +80,9 @@ class SignUpPageState extends State<SignUpPage> {
                       ),
                       SizedBox(height: 16),
                       TextField(
+                        onChanged: (passwordConfirmation){
+                          user.password_confirmation = passwordConfirmation;
+                        },
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
@@ -99,8 +114,22 @@ class SignUpPageState extends State<SignUpPage> {
                         width: 280,
                         child: FloatingActionButton(
                           onPressed: (){
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogInPage()) );
-                          },
+                            http.post(Uri.parse('https://ad4e-182-253-61-15.ngrok-free.app/api/auth/register'),
+                                headers: <String, String>{
+                                  'Content-Type': 'application/json'
+                                },
+                                body: user.registertojson()
+                              ).then((response){
+                                if (response.statusCode == 201){
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogInPage()));
+                                }
+                                else{
+                                  print(response.body);
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid username or password!")));
+                                }
+                            }
+                            );
+                            },
                           backgroundColor: Color.fromARGB(255, 0, 150, 200),
                           child: Text('Sign Up', style: TextStyle(fontSize: 16, color: Colors.white)),
                         ),

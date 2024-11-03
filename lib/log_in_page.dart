@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/sign_up_page.dart';
+import 'package:http/http.dart' as http;
+
+import 'Models/user.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
@@ -10,6 +13,8 @@ class LogInPage extends StatefulWidget {
 }
 
 class _LogInPageState extends State<LogInPage> {
+  User user = new User();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +39,9 @@ class _LogInPageState extends State<LogInPage> {
                 child: Column(
                   children: [
                     TextField(
+                      onChanged: (email){
+                        user.email = email;
+                      },
                       decoration: InputDecoration(
                         labelText: 'Email',
                         prefixIcon: Icon(Icons.email),
@@ -43,6 +51,9 @@ class _LogInPageState extends State<LogInPage> {
                     ),
                     SizedBox(height: 16),
                     TextField(
+                      onChanged: (password){
+                        user.password = password;
+                      },
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
@@ -74,8 +85,22 @@ class _LogInPageState extends State<LogInPage> {
                       width: 280,
                       child: FloatingActionButton(
                         onPressed: (){
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()) );
-                        },
+                          http.post(Uri.parse('https://ad4e-182-253-61-15.ngrok-free.app/api/auth/login'),
+                              headers: <String, String>{
+                                'Content-Type': 'application/json'
+                              },
+                              body: user.logintojson()
+                          ).then((response){
+                            if (response.statusCode == 200){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                            }
+                            else{
+                              print(response.body);
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid username or password!")));
+                            }
+                          }
+                          );
+                          },
                         backgroundColor: Color.fromARGB(255, 0, 150, 200),
                         child: Text('Login', style: TextStyle(fontSize: 16, color: Colors.white)),
                       ),

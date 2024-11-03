@@ -92,10 +92,11 @@ class HomePageState extends State<HomePage> {
                     SliverGrid(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1),
                         delegate: SliverChildBuilderDelegate((context, index) {
                           return Card(
-                              child: Text("Test")
+                            color: Colors.green,
+                              child: Text("Test DEL CAKEP BGT")
                           );
                         },
-                        childCount: 10))
+                        childCount: 100))
                   ],
                 ),
               ),
