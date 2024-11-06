@@ -11,11 +11,13 @@ class SplashSatuPage extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 120,),
+              const SizedBox(height: 120,),
               Image.asset('assets/logo_black.png'),
-              SizedBox(height: 320,),
-              Text("More Practical", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-              Padding(padding: EdgeInsets.fromLTRB(12, 0, 12, 25), child: Text("Shopping for fresh consumer fish is now easier with our e-commerce app, straight from the fisherman to your kitchen!", style: TextStyle(fontSize: 16),textAlign: TextAlign.center,),),
+              const SizedBox(height: 30),
+              Image.asset('assets/splash1.png', scale: 1.5),
+              const SizedBox(height: 100),
+              const Text("More Practical", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+              const Padding(padding: EdgeInsets.fromLTRB(12, 0, 12, 25), child: Text("Shopping for fresh consumer fish is now easier with our e-commerce app, straight from the fisherman to your kitchen!", style: TextStyle(fontSize: 16),textAlign: TextAlign.center,),),
               SizedBox(
                 width: 250,
                 height: 40,
@@ -23,8 +25,8 @@ class SplashSatuPage extends StatelessWidget {
                   onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SplashDuaPage()) );
                   },
-                  backgroundColor: Color.fromARGB(255, 0, 150, 200),
-                  child: Text("Next", style: TextStyle(color: Colors.white),),),
+                  backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+                  child: const Text("Next", style: TextStyle(color: Colors.white),),),
               ),
             ],
           ),

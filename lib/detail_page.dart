@@ -37,7 +37,7 @@ class DetailPage extends StatelessWidget {
             ),
             const Padding(
                 padding: EdgeInsets.all(16.0),
-              child: Text('\Rp 31.000',
+              child: Text('Rp 31.000',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500) ,
               ),
             ),

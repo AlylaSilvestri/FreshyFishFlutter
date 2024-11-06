@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:freshy_fish/sign_up_page.dart';
 import 'package:freshy_fish/splash_satu_page.dart';
 
 void main() {
@@ -37,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Duration(seconds: 2), () async {
+      Future.delayed(const Duration(seconds: 2), () async {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SplashSatuPage()));
       });
     });
@@ -47,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color.fromARGB(255, 0, 150, 200),
+        color: const Color.fromARGB(255, 0, 150, 200),
         child: Center(
           child: Image.asset('assets/logo_putih.png'),
         ),

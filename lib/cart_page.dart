@@ -26,9 +26,9 @@ class CartPageState extends State<CartPage>{
                       const SizedBox(width: 20),
                       Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
                       const SizedBox(width: 10),
-                      Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Hi,',
                             style: TextStyle(
@@ -52,7 +52,7 @@ class CartPageState extends State<CartPage>{
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
 
             )
           ],

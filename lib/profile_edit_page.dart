@@ -22,20 +22,20 @@ class ProfileEditPageState extends State<ProfileEditPage> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                color: Color.fromARGB(255, 0, 150, 200),
+                color: const Color.fromARGB(255, 0, 150, 200),
                 child: Column(
                   children: [
-                    SizedBox(height: 50),
+                    const SizedBox(height: 50),
                     Image.asset('assets/logo_putih.png', scale: 1.5),
-                    SizedBox(height: 30),
-                    CircleAvatar(
+                    const SizedBox(height: 30),
+                    const CircleAvatar(
                       radius: 70,
                       backgroundImage: NetworkImage(
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHDT8TZp9Ized8FRjPMwrliwxAbd6JqlxZqQ&s',
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       "User Name",
                       style: TextStyle(
                         fontSize: 20,
@@ -43,12 +43,12 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
-              SizedBox(height: 15),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+              const SizedBox(height: 15),
+              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Address",
                   style: TextStyle(
@@ -61,7 +61,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   decoration: InputDecoration(
-                    constraints: BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
                     labelText: 'Address',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -69,8 +69,8 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+              const SizedBox(height: 15),
+              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Email",
                   style: TextStyle(
@@ -83,7 +83,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   decoration: InputDecoration(
-                    constraints: BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
                     labelText: 'Email',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -91,8 +91,8 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+              const SizedBox(height: 15),
+              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Phone",
                   style: TextStyle(
@@ -105,7 +105,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   decoration: InputDecoration(
-                    constraints: BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
                     labelText: 'Phone',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -113,8 +113,8 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+              const SizedBox(height: 15),
+              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Password",
                   style: TextStyle(
@@ -128,7 +128,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 child: TextField(
                   obscureText: true,
                   decoration: InputDecoration(
-                    constraints: BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
                     labelText: 'Password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -136,7 +136,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               Center(
                 child: SizedBox(
                   height: 47,
@@ -145,8 +145,8 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                     onPressed: (){
                       Navigator.pop(context, MaterialPageRoute(builder: (context) => const ProfilePage()) );
                     },
-                    backgroundColor: Color.fromARGB(255, 0, 150, 200),
-                    child: Text('Save', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+                    child: const Text('Save', style: TextStyle(fontSize: 16, color: Colors.white)),
                   ),
                 ),
               )

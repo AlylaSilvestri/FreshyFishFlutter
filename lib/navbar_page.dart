@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/cart_page.dart';
-import 'package:freshy_fish/detail_page.dart';
 import 'package:freshy_fish/favorite_page.dart';
 import 'package:freshy_fish/home_page.dart';
-import 'package:freshy_fish/profile_edit_page.dart';
 import 'package:freshy_fish/profile_page.dart';
 
 class NavbarPage extends StatefulWidget {
@@ -20,7 +18,6 @@ class NavbarState extends State<NavbarPage> {
     HomePage(),
     CartPage(),
     ProfilePage(),
-    ProfileEditPage()
   ];
 
   @override

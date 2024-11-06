@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:freshy_fish/profile_edit_page.dart';
-import 'package:freshy_fish/profile_page.dart';
-import 'cart_page.dart';
-import 'favorite_page.dart';
+import 'package:freshy_fish/ikan_laut_page.dart';
+import 'package:freshy_fish/ikan_payau_page.dart';
+import 'package:freshy_fish/ikan_tawar_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,13 +15,28 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  int cuttenIndex = 0;
-  List screens = const [
-    FavoritePage(),
-    HomePage(),
-    CartPage(),
-    ProfileEditPage(),
-  ];
+  late Future<dynamic> me;
+
+  @override
+  void initState() {
+    super.initState();
+    // me = getMe();
+  }
+
+  // getMe() {
+  //   http.get(Uri.parse("https://ad4e-182-253-61-15.ngrok-free.app/api/auth/me"), headers: <String, String>{
+  //     'Content-Type': 'application/json',
+  //     'Authentication': StorageService().getToken()
+  //   }).then((response) {
+  //     if (response.statusCode == 200) {
+  //       return jsonDecode(response.body);
+  //     }
+  //     else {
+  //       return "Failed";
+  //     }
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,25 +46,37 @@ class HomePageState extends State<HomePage> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                color: Color.fromARGB(255, 0, 150, 200),
+                color: const Color.fromARGB(255, 0, 150, 200),
                 child: Column(
                   children: [
-                    SizedBox(height: 50),
+                    const SizedBox(height: 50),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.end ,
                       children: [
-                        SizedBox(width: 20 ),
+                        const SizedBox(width: 20 ),
                         Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
-                        SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Hi,', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                          ],
-                        )
+                        const SizedBox(width: 10),
+                        Text('Hi, ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                        // const Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     Text('Hi,', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                        //     FutureBuilder(future: me, builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                        //       if (snapshot.connectionState == ConnectionState.waiting) {
+                        //         return const CircularProgressIndicator();
+                        //       } else if (snapshot.hasError) {
+                        //         return const Text("error");
+                        //       } else {
+                        //         return const Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white));
+                        //       }
+                        //     })
+                        //
+                        Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white))
+                        //   ],
+                        // )
                       ],
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     Container(
                       width: 320,
@@ -56,27 +86,27 @@ class HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(
-                            Icons.search,
-                            color: Colors.grey,
-                            size: 30,
-                          ),
                           SizedBox(width: 10), Flexible(
                               child: TextField(
                                 decoration: InputDecoration(hintText: "Search...",
                                 border: InputBorder.none),
                               ),
                           ),
-
+                          Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                            size: 30,
+                          ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
+
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 500,
@@ -85,86 +115,149 @@ class HomePageState extends State<HomePage> {
                     SliverToBoxAdapter(
                       child:
                       Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Image.asset("assets/banner.jpg"),
+                        padding: const EdgeInsets.all(12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12), // Set the corner radius here
+                          child: Image.asset("assets/ikanikan.png"),
+                        ),
                       ),
                     ),
-                    SliverGrid(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1),
+                    SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          FloatingActionButton.extended(
+                            onPressed: (){
+
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const IkanPayauPage()) );
+                            },
+                            label: Text('Ikan Payau', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+
+                            ),
+                          ),
+                          FloatingActionButton.extended(
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const IkanLautPage()) );
+                            },
+                            label: Text('Ikan Laut', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          FloatingActionButton.extended(
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const IkanTawarPage()) );
+                            },
+                            label: Text('Ikan Tawar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SliverGrid(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1),
                         delegate: SliverChildBuilderDelegate((context, index) {
-                          return Card(
-                            color: Colors.green,
-                              child: Text("Test DEL CAKEP BGT")
-                          );
+                          if (index == 0) {
+                            return  Card(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0), // Rounded corners for the image
+                                      child: Image.network(
+                                        'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg', // Replace with the actual image URL
+                                        height: 90,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover, // Ensures the image covers the entire width
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      "Ikan Brek",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue[800],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    const Text(
+                                      "Rp 20.000", // Example price
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.cyan,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Card(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.network(
+                                        'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367', // Replace with a different image URL
+                                        height: 90,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      "Ikan Bandeng",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue[800],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    const Text(
+                                      "Rp 25.000", // Different price
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.cyan,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
                         },
-                        childCount: 100))
+                        childCount: 2),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        elevation: 1,
-        color: Colors.white,
-        notchMargin: 10,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttenIndex = 0;
-                });
-              },
-              icon: const Icon(
-                Icons.home_outlined,
-                size: 25,
-                color: Color.fromARGB(255, 0, 150, 200),
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const FavoritePage()) );
-                setState(() {
-                  cuttenIndex = 2;
-                });
-              },
-              icon: const Icon(
-                Icons.favorite_border_rounded,
-                size: 25,
-                color: Color.fromARGB(255, 0, 150, 200),
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()) );
-                setState(() {
-                  cuttenIndex = 3;
-                });
-              },
-              icon: const Icon(
-                Icons.shopping_cart_checkout_rounded,
-                size: 25,
-                color: Color.fromARGB(255, 0, 150, 200),
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()) );
-                setState(() {
-                  cuttenIndex = 4;
-                });
-              },
-              icon: const Icon(
-                Icons.person_2_outlined,
-                size: 25,
-                color: Color.fromARGB(255, 0, 150, 200),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

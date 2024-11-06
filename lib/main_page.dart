@@ -14,8 +14,8 @@ class MainPage extends StatefulWidget {
 class NavbarState extends State<MainPage> {
   int cuttenIndex = 0;
   List screens = const [
-    FavoritePage(),
     HomePage(),
+    FavoritePage(),
     CartPage(),
     ProfilePage(),
   ];
@@ -23,21 +23,11 @@ class NavbarState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            cuttenIndex = 2;
-          });
-        },
-        shape: const CircleBorder(),
-        backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-        child: const Icon(Icons.home, color: Colors.white, size: 35),
-      ),
+      body: screens[cuttenIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         elevation: 1,
         color: Colors.white,
-        shape: const CircularNotchedRectangle(),
         notchMargin: 10,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: Row(
@@ -51,7 +41,7 @@ class NavbarState extends State<MainPage> {
                 });
               },
               icon: const Icon(
-                Icons.grid_view_outlined,
+                Icons.home_outlined,
                 size: 25,
                 color: Color.fromARGB(255, 0, 150, 200),
               ),
@@ -68,11 +58,10 @@ class NavbarState extends State<MainPage> {
                 color: Color.fromARGB(255, 0, 150, 200),
               ),
             ),
-            const SizedBox(width: 20),
             IconButton(
               onPressed: () {
                 setState(() {
-                  cuttenIndex = 3;
+                  cuttenIndex = 2;
                 });
               },
               icon: const Icon(
@@ -84,7 +73,7 @@ class NavbarState extends State<MainPage> {
             IconButton(
               onPressed: () {
                 setState(() {
-                  cuttenIndex = 4;
+                  cuttenIndex = 3;
                 });
               },
               icon: const Icon(
