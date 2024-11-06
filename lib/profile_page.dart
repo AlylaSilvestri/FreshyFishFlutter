@@ -88,16 +88,17 @@ class ProfilePageState extends State<ProfilePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '*************',
                       style: TextStyle(fontSize: 18), // Optional styling for text
-                    ),
-                    SizedBox(width: 180), // Spacing between text and icon
-                    Icon(
+                    ), // Spacing between text and icon
+                    Padding(padding: EdgeInsets.fromLTRB(0, 0, 20, 0), child: Icon(
                       Icons.remove_red_eye_rounded,
                       color: Colors.grey,
                       size: 25,
+                    ),
                     ),
                   ],
                 ),

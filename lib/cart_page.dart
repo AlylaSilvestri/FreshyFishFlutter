@@ -54,6 +54,8 @@ class CartPageState extends State<CartPage> {
                   children: [
                     ListTile(
                       leading: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
                           color: Colors.grey,
                           image: DecorationImage(
