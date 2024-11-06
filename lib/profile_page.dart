@@ -46,49 +46,84 @@ class ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                    const Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
-                        child: Text(
-                          'johndoe@example.com',
-                          style: TextStyle(
-                            fontSize: 16.0, // Font size for the email
-                            fontWeight: FontWeight.bold, // Make the text bold
-                            color: Colors.white, // Change the text color
-                            letterSpacing: 1.2, // Add letter spacing for better readability
-                          ),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 15),
                   ],
                 ),
               ),
-              ListTile(
-                title: const Text('Saved Addresses'),
-                onTap: () {
-                  // Go to saved addresses page
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
+              Padding(
+                  padding: EdgeInsets.fromLTRB(20, 15, 0, 0),
+                child:Text(
+                  'Address', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
-              const Divider(),
-              ListTile(
-                title: const Text('Order History'),
-                onTap: () {
-                  // Go to order history page
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child: Text(
+                  'Jln Sancang Dalam no. 5, kel. Kijang Besar, kec. Bogor Utara'
+                ),
               ),
-              const Divider(),
-              ListTile(
-                title: const Text('Create Store'),
-                onTap: () {
-                  // Go to create store page
-                },
-                trailing: const Icon(Icons.arrow_forward_ios),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child:Text(
+                  'Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
-              const Divider(),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child: Text(
+                    'del@gmail.com'
+                ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child:Text(
+                  'Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child: Row(
+                  children: [
+                    Text(
+                      '*************',
+                      style: TextStyle(fontSize: 18), // Optional styling for text
+                    ),
+                    SizedBox(width: 180), // Spacing between text and icon
+                    Icon(
+                      Icons.remove_red_eye_rounded,
+                      color: Colors.grey,
+                      size: 25,
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child:Text(
+                  'Store', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0), child: SizedBox(
+                height: 47,
+                width: 321,
+                child: FloatingActionButton(
+                  onPressed: (){},
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.blue, width: 2), // Blue border
+                    borderRadius: BorderRadius.circular(10), // Ensures circular shape
+                  ),
+                ),
+              ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
               Padding(
                   padding: const EdgeInsets.all(16.0),
                 child: Row(

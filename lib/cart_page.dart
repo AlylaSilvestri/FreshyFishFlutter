@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'main_page.dart';
 
 class CartPage extends StatefulWidget {
-  const CartPage ({super.key});
+  const CartPage({super.key});
 
   @override
   State<CartPage> createState() => CartPageState();
 }
 
-class CartPageState extends State<CartPage>{
+class CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,37 +25,48 @@ class CartPageState extends State<CartPage>{
                   Row(
                     children: [
                       const SizedBox(width: 20),
-                      Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
-                      const SizedBox(width: 10),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hi,',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            'User',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const MainPage()));
+                        }, // Set background color to blue
+                        child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 35),
+                      ),
+                      const SizedBox(width: 15),
+                      const Text(
+                        'Your Order',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Set text color
+                        ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
-            const SizedBox(
-
-            )
+            SizedBox(
+              height: 500,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ListView(
+                  children: [
+                    ListTile(
+                      leading: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          image: DecorationImage(
+                            image: AssetImage('assets/Gurame.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

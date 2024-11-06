@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/fish_detail_page.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/main_page.dart';
 
@@ -113,12 +114,19 @@ class IkanLautPageState extends State<IkanLautPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => FishDetailPage(
-                                  fishName: index == 0 ? 'Ikan Payau' : 'Ikan Bandeng',
-                                  fishPrice: index == 0 ? 'Rp 60.000' : 'Rp 25.000 /kg',
-                                  imageUrl: index == 0
-                                      ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg'
-                                      : 'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
+                                    fishName: index == 0 ? 'Ikan Payau' : 'Ikan Bandeng',
+                                    fishPrice: index == 0 ? 'Rp 60.000' : 'Rp 25.000',
+                                    imageUrl: index == 0
+                                        ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg'
+                                        : 'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
                                 ),
+                                // FishDetailPage(
+                                //   fishName: index == 0 ? 'Ikan Payau' : 'Ikan Bandeng',
+                                //   fishPrice: index == 0 ? 'Rp 60.000' : 'Rp 25.000 /kg',
+                                //   imageUrl: index == 0
+                                //       ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg'
+                                //       : 'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
+                                // ),
                               ),
                             );
                           },

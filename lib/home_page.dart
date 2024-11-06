@@ -8,7 +8,7 @@ import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key}) ;
 
   @override
   State<HomePage> createState() => HomePageState();
@@ -221,7 +221,7 @@ class HomePageState extends State<HomePage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.network(
-                                        'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367', // Replace with a different image URL
+                                        'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
                                         height: 90,
                                         width: double.infinity,
                                         fit: BoxFit.cover,

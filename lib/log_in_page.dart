@@ -87,7 +87,7 @@ class _LogInPageState extends State<LogInPage> {
                       width: 280,
                       child: FloatingActionButton(
                         onPressed: (){
-                          http.post(Uri.parse('http://192.168.100.125:8000/api/auth/login'),
+                          http.post(Uri.parse('http://192.168.18.207:8000/api/auth/login'),
                               headers: <String, String>{
                                 'Content-Type': 'application/json'
                               },

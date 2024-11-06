@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/cart_page.dart';
-import 'package:freshy_fish/favorite_page.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/profile_page.dart';
 
@@ -15,7 +14,6 @@ class NavbarState extends State<MainPage> {
   int cuttenIndex = 0;
   List screens = const [
     HomePage(),
-    FavoritePage(),
     CartPage(),
     ProfilePage(),
   ];
@@ -42,10 +40,22 @@ class NavbarState extends State<MainPage> {
               },
               icon: const Icon(
                 Icons.home_outlined,
-                size: 25,
+                size: 35,
                 color: Color.fromARGB(255, 0, 150, 200),
               ),
             ),
+            // IconButton(
+            //   onPressed: () {
+            //     setState(() {
+            //       cuttenIndex = 1;
+            //     });
+            //   },
+            //   icon: const Icon(
+            //     Icons.favorite_border_rounded,
+            //     size: 25,
+            //     color: Color.fromARGB(255, 0, 150, 200),
+            //   ),
+            // ),
             IconButton(
               onPressed: () {
                 setState(() {
@@ -53,8 +63,8 @@ class NavbarState extends State<MainPage> {
                 });
               },
               icon: const Icon(
-                Icons.favorite_border_rounded,
-                size: 25,
+                Icons.shopping_cart_checkout_rounded,
+                size: 35,
                 color: Color.fromARGB(255, 0, 150, 200),
               ),
             ),
@@ -65,20 +75,8 @@ class NavbarState extends State<MainPage> {
                 });
               },
               icon: const Icon(
-                Icons.shopping_cart_checkout_rounded,
-                size: 25,
-                color: Color.fromARGB(255, 0, 150, 200),
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttenIndex = 3;
-                });
-              },
-              icon: const Icon(
                 Icons.person_2_outlined,
-                size: 25,
+                size: 35,
                 color: Color.fromARGB(255, 0, 150, 200),
               ),
             ),
