@@ -26,7 +26,7 @@ class _FishDetailPageState extends State<FishDetailPage> {
       ),
       body: Center(
         child: Column(
-          children: [
+          children: [ 
             Image.network(widget.imageUrl),
             const SizedBox(height: 20),
             Text(

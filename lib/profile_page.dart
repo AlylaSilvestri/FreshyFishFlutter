@@ -116,9 +116,14 @@ class ProfilePageState extends State<ProfilePage> {
                 width: 321,
                 child: FloatingActionButton(
                   onPressed: (){},
-                  backgroundColor: Colors.white,
+                  backgroundColor: Colors.blue.shade50,
+                  child: Icon(
+                    Icons.add_rounded,
+                    color: Colors.black,
+                    size: 25,
+                  ),
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.blue, width: 2), // Blue border
+                    side: BorderSide(color: Color.fromARGB(255, 0, 150, 200), width: 2), // Blue border
                     borderRadius: BorderRadius.circular(10), // Ensures circular shape
                   ),
                 ),
