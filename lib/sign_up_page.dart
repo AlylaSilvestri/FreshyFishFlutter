@@ -113,7 +113,7 @@ class SignUpPageState extends State<SignUpPage> {
                         width: 280,
                         child: FloatingActionButton(
                           onPressed: (){
-                            http.post(Uri.parse('http://192.168.100.125:8000/api/auth/register'),
+                            http.post(Uri.parse('http://192.168.18.107:8000/api/auth/register'),
                                 headers: <String, String>{
                                   'Content-Type': 'application/json'
                                 },

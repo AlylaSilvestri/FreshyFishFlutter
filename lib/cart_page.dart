@@ -24,6 +24,7 @@ class CartPageState extends State<CartPage> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,19 +67,17 @@ class CartPageState extends State<CartPage> {
               ),
             ),
             SizedBox(
-              height: 500,
-              child: ListView(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+              height: 450,
+              child: ListView.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
                         borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        boxShadow: const [
-                          BoxShadow(
-                            blurRadius: 2,
-                          ),
-                        ]
                       ),
                       child: Column(
                         children: [
@@ -89,34 +88,33 @@ class CartPageState extends State<CartPage> {
                                 height: 80,
                                 width: 80,
                                 decoration: BoxDecoration(
-                                  image: DecorationImage(
+                                  image: const DecorationImage(
                                     fit: BoxFit.fill,
-                                      image: NetworkImage('https://images.tokopedia.net/img/cache/700/VqbcmM/2021/11/17/534aa259-44f5-4e5d-935e-d9cd60f0eaf9.png'),
+                                    image: NetworkImage(
+                                        'https://images.tokopedia.net/img/cache/700/VqbcmM/2021/11/17/534aa259-44f5-4e5d-935e-d9cd60f0eaf9.png'),
                                   ),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10)
-                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
                                 ),
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    margin: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                                    child: Text(
-                                        'Lele',
+                                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 0),
+                                    child: const Text(
+                                      'Lele',
                                       style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold
-                                      ),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                    child: Text(
+                                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                    child: const Text(
                                       'Beli ges',
                                       style: TextStyle(
-                                          fontSize: 15,
+                                        fontSize: 15,
                                       ),
                                     ),
                                   ),
@@ -124,36 +122,45 @@ class CartPageState extends State<CartPage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                        margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                        child: Text(
+                                        margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                        child: const Text(
                                           'Rp 80.000',
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.green
-                                          ),
+                                              color: Colors.green),
                                         ),
                                       ),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          IconButton(onPressed: (){
-                                            _decrementCounter();
-                                          }, icon: Icon(Icons.remove_circle, color: Colors.orange)),
+                                          IconButton(
+                                            onPressed: () {
+                                              _decrementCounter();
+                                            },
+                                            icon: const Icon(Icons.remove_circle,
+                                                color: Colors.orange),
+                                          ),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(horizontal: 3),
                                             child: Text(
                                               '$_counter',
-                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                           ),
-                                          IconButton(onPressed: (){
-                                            _incrementCounter();
-                                          }, icon: Icon(Icons.add_circle, color: Colors.orange))
+                                          IconButton(
+                                            onPressed: () {
+                                              _incrementCounter();
+                                            },
+                                            icon: const Icon(Icons.add_circle,
+                                                color: Colors.orange),
+                                          ),
                                         ],
                                       ),
                                     ],
-                                  )
+                                  ),
                                 ],
                               ),
                             ],
@@ -161,25 +168,98 @@ class CartPageState extends State<CartPage> {
                         ],
                       ),
                     ),
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      color: Colors.blue,
-                      child: Column(
-                        children: [
-                          Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Ongkir',
-                              ),
-                            ],
+                  );
+                },
+              ),
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 197,
+              decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 0, 150, 200),
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+              ),
+              child: Padding(
+                  padding: EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Ongkir',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
                           ),
-
-                        ],
+                        ),
+                        Text(
+                          'Rp 1.000.000',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Sub Total',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Rp 10.000.000',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Total',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Rp 111.000.000',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    ElevatedButton(
+                        onPressed: (){}, 
+                        child: Text('ayo checkout', style: TextStyle(color: Colors.deepPurple)),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.white),
+                        minimumSize: WidgetStateProperty.all(Size(300, 40)),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
+            ),
           ],
         ),
       ),

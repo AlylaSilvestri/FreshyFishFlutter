@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/cart_page.dart';
 import 'package:freshy_fish/home_page.dart';
+import 'package:freshy_fish/order_history_page.dart';
 import 'package:freshy_fish/profile_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -14,7 +15,7 @@ class NavbarState extends State<MainPage> {
   int cuttenIndex = 0;
   List screens = const [
     HomePage(),
-    CartPage(),
+    OrderHistoryPage(),
     ProfilePage(),
   ];
 

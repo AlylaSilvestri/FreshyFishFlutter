@@ -7,6 +7,8 @@ import 'package:freshy_fish/ikan_tawar_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
 
+import 'cart_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key}) ;
 
@@ -51,12 +53,17 @@ class HomePageState extends State<HomePage> {
                   children: [
                     const SizedBox(height: 50),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end ,
                       children: [
                         const SizedBox(width: 20 ),
-                        Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
-                        const SizedBox(width: 10),
-                        Text('Hi, ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Image.asset('assets/logo_keranjang_doang.png', scale: 1.5),
+                        const SizedBox(width: 25),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Hi,', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                            Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                          ],
+                        ),
                         // const Column(
                         //   crossAxisAlignment: CrossAxisAlignment.start,
                         //   children: [
@@ -71,7 +78,14 @@ class HomePageState extends State<HomePage> {
                         //       }
                         //     })
                         //
-                        Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+
+                        const SizedBox(width: 145),
+                        IconButton(
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()) );
+                            },
+                            icon: Icon(Icons.shopping_bag_rounded, size: 40, color: Colors.white),
+                        ),
                         //   ],
                         // )
                       ],
