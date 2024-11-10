@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/main_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
 import 'package:freshy_fish/sign_up_page.dart';
 import 'package:http/http.dart' as http;
 
@@ -71,7 +72,9 @@ class _LogInPageState extends State<LogInPage> {
                       children: [
                         Row(
                           children: [
-                            Checkbox(value: false, onChanged: (value){}),
+                            Checkbox(
+                                value: false,
+                                onChanged: (value){}),
                             const Text("Remember me"),
                           ],
                         ),
@@ -87,15 +90,16 @@ class _LogInPageState extends State<LogInPage> {
                       width: 280,
                       child: FloatingActionButton(
                         onPressed: (){
-                          http.post(Uri.parse('http://192.168.18.107:8000/api/auth/login'),
+                          http.post(Uri.parse('http://13.13.13.74:8000/api/auth/login'),
                               headers: <String, String>{
                                 'Content-Type': 'application/json'
                               },
                               body: user.logintojson()
                           ).then((response){
                             if (response.statusCode == 200){
+                              print("success");
                               var res = jsonDecode(response.body);
-                              // StorageService().saveToken(res["token"]);
+                              StorageService().saveToken(res["data"]["token"]);
                               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
                             }
                             else{
@@ -108,6 +112,7 @@ class _LogInPageState extends State<LogInPage> {
                           // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
                           },
                         backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+                        heroTag: "button_login",
                         child: const Text('Login', style: TextStyle(fontSize: 16, color: Colors.white)),
                       ),
                     ),

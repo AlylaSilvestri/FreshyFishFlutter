@@ -17,27 +17,24 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  late Future<dynamic> me;
+  late Future<Map<String, dynamic>> me;
+  StorageService storageService = StorageService();
 
   @override
   void initState() {
     super.initState();
-    // me = getMe();
+    me = getMe();
   }
 
-  // getMe() {
-  //   http.get(Uri.parse("https://ad4e-182-253-61-15.ngrok-free.app/api/auth/me"), headers: <String, String>{
-  //     'Content-Type': 'application/json',
-  //     'Authentication': StorageService().getToken()
-  //   }).then((response) {
-  //     if (response.statusCode == 200) {
-  //       return jsonDecode(response.body);
-  //     }
-  //     else {
-  //       return "Failed";
-  //     }
-  //   });
-  // }
+  Future<Map<String, dynamic>> getMe() async {
+    StorageService storageService = StorageService();
+    String? token = await storageService.getToken();
+    var response = await http.get(Uri.parse("http://13.13.13.74:8000/api/auth/me"), headers: <String, String>{
+    'Content-Type': 'application/json',
+    'Authorization': "Bearer $token"
+    });
+    return jsonDecode(response.body);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,27 +58,22 @@ class HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Hi,', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                            FutureBuilder(future: me, builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return const Text("error");
+                              } else {
+                                return Text("${snapshot.data["data"]["name"]}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white));
+                              }
+                            }),
                           ],
                         ),
-                        // const Column(
-                        //   crossAxisAlignment: CrossAxisAlignment.start,
-                        //   children: [
-                        //     Text('Hi,', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                        //     FutureBuilder(future: me, builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                        //       if (snapshot.connectionState == ConnectionState.waiting) {
-                        //         return const CircularProgressIndicator();
-                        //       } else if (snapshot.hasError) {
-                        //         return const Text("error");
-                        //       } else {
-                        //         return const Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white));
-                        //       }
-                        //     })
-                        //
 
                         const SizedBox(width: 145),
                         IconButton(
                             onPressed: (){
+                              getMe();
                               Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()) );
                             },
                             icon: Icon(Icons.shopping_bag_rounded, size: 40, color: Colors.white),
