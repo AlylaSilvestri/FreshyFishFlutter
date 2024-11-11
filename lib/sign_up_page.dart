@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
-
   @override
   State<SignUpPage> createState() => SignUpPageState();
 }
@@ -18,141 +17,163 @@ class SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  color: const Color.fromARGB(255, 0, 150, 200),
-                  child: Column(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                color: const Color.fromARGB(255, 0, 150, 200),
+                child: Column(
                   children: [
                     const SizedBox(height: 90),
-                    Image.asset('assets/logo_putih.png', scale: 1.5,),
+                    Image.asset(
+                      'assets/logo_putih.png',
+                      scale: 1.5,
+                    ),
                     const SizedBox(height: 30),
-                    const Padding(padding: EdgeInsets.fromLTRB(30, 0, 30, 0), child: Text("Sign in to your account and start buying your fish.", style: TextStyle(fontSize: 17, color: Colors.white),textAlign: TextAlign.center,),),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                      child: Text(
+                        "Sign in to your account and start buying your fish.",
+                        style: TextStyle(fontSize: 17, color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                     const SizedBox(height: 30),
-                ],),),
-                const SizedBox(height: 40),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                  child: Column(
-                    children: [
-                      TextField(
-                        onChanged: (name){
-                          user.name = name;
-                          },
-                        decoration: InputDecoration(
-                          labelText: 'Name',
-                          prefixIcon: const Icon(Icons.person_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        onChanged: (email){
-                          user.email = email;
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        onChanged: (password){
-                          user.password = password;
-                        },
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.key_sharp),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        onChanged: (passwordConfirmation){
-                          user.password_confirmation = passwordConfirmation;
-                        },
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          prefixIcon: const Icon(Icons.key_sharp),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Checkbox(value: false, onChanged: (value) {}),
-                              const Text('Remember me'),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text('Forgot password?'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 47,
-                        width: 280,
-                        child: FloatingActionButton(
-                          onPressed: (){
-                            http.post(Uri.parse('http://13.13.13.74:8000/api/auth/register'),
-                                headers: <String, String>{
-                                  'Content-Type': 'application/json'
-                                },
-                                body: user.registertojson()
-                              ).then((response){
-                                if (response.statusCode == 201){
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogInPage()));
-                                }
-                                else{
-                                  print(response.body);
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid username or password!")));
-                                }
-                            }
-                            );
-                            },
-                          backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-                          child: const Text('Sign Up', style: TextStyle(fontSize: 16, color: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
                   children: [
-                    const Text("Already have an account? "),
-                    TextButton(
-                      onPressed: (){
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogInPage()) );
+                    TextField(
+                      onChanged: (name) {
+                        user.name = name;
                       },
-                      child: const Text('Log In', style: TextStyle(color: Color.fromARGB(255, 0, 150, 200))),
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        prefixIcon: const Icon(Icons.person_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      onChanged: (email) {
+                        user.email = email;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: const Icon(Icons.email_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      onChanged: (password) {
+                        user.password = password;
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: const Icon(Icons.key_sharp),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      onChanged: (passwordConfirmation) {
+                        user.password_confirmation = passwordConfirmation;
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        prefixIcon: const Icon(Icons.key_sharp),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    SizedBox(
+                      height: 47,
+                      width: 280,
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          http
+                              .post(
+                            Uri.parse(
+                                'http://192.168.1.7:8000/api/auth/register'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json'
+                            },
+                            body: user.registertojson(),
+                          )
+                              .then((response) {
+                            if (response.statusCode == 201) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LogInPage(),
+                                ),
+                              );
+                            } else {
+                              print(response.body);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      "Invalid username or password!"),
+                                ),
+                              );
+                            }
+                          });
+                        },
+                        backgroundColor:
+                        const Color.fromARGB(255, 0, 150, 200),
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
                     ),
                   ],
-                )
-              ],
-            ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account? "),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LogInPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Log In',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 150, 200),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

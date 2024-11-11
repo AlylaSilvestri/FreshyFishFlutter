@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/Models/user.dart';
+import 'package:freshy_fish/log_in_page.dart';
+import 'package:freshy_fish/main_page.dart';
 import 'package:freshy_fish/profile_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileEditPage extends StatefulWidget {
   const ProfileEditPage({super.key});
@@ -10,10 +17,66 @@ class ProfileEditPage extends StatefulWidget {
 
 class ProfileEditPageState extends State<ProfileEditPage> {
   bool passwordVisible = false;
+  StorageService storageService = StorageService();
+  User user = new User();
+
+  @override
+  void initState() {
+    super.initState();
+    getMe();
+  }
+
+  Future<void> updateAddress() async {
+    StorageService storageService = StorageService();
+    String? token = await storageService.getToken();
+
+    final response = await http.put(
+      Uri.parse('http://192.168.1.7:8000/api/auth/update'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: user.updatetojson()
+    );
+
+    if (response.statusCode == 200) {
+      // Navigate back to profile page after successful update
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update address')),
+      );
+    }
+  }
+
+  void getMe() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("http://192.168.1.7:8000/api/auth/me"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+    Map<String, dynamic> data = jsonDecode(response.body);
+    setState(() {
+      user.name = data["data"]["name"];
+      user.email = data["data"]["email"];
+      user.address = data["data"]["address"];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        foregroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+        title: Image.asset('assets/logo_putih.png', scale: 1.5),
+      ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
@@ -23,13 +86,12 @@ class ProfileEditPageState extends State<ProfileEditPage> {
               Container(
                 width: MediaQuery.of(context).size.width,
                 color: const Color.fromARGB(255, 0, 150, 200),
-                child: Column(
+                child:
+                Column(
                   children: [
-                    const SizedBox(height: 50),
-                    Image.asset('assets/logo_putih.png', scale: 1.5),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
                     const CircleAvatar(
-                      radius: 70,
+                      radius: 50,
                       backgroundImage: NetworkImage(
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHDT8TZp9Ized8FRjPMwrliwxAbd6JqlxZqQ&s',
                       ),
@@ -60,6 +122,10 @@ class ProfileEditPageState extends State<ProfileEditPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
+                  onChanged: (value) {
+                    user.address = value;
+                  },
+                  controller: TextEditingController(text: user.address),
                   decoration: InputDecoration(
                     constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
                     labelText: 'Address',
@@ -82,6 +148,10 @@ class ProfileEditPageState extends State<ProfileEditPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
+                  onChanged: (value) {
+                    user.email = value;
+                  },
+                  controller: TextEditingController(text: user.email),
                   decoration: InputDecoration(
                     constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
                     labelText: 'Email',
@@ -92,28 +162,28 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 ),
               ),
               const SizedBox(height: 15),
-              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Phone",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
-                    labelText: 'Phone',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
+              // const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+              //   child: Text(
+              //     "Phone",
+              //     style: TextStyle(
+              //       fontSize: 22,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: TextField(
+              //     decoration: InputDecoration(
+              //       constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
+              //       labelText: 'Phone',
+              //       border: OutlineInputBorder(
+              //         borderRadius: BorderRadius.circular(30.0),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 15),
               const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Password",
@@ -126,6 +196,9 @@ class ProfileEditPageState extends State<ProfileEditPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
+                  onChanged: (value) {
+                    user.password = value;
+                  },
                   obscureText: true,
                   decoration: InputDecoration(
                     constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
@@ -137,19 +210,81 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 ),
               ),
               const SizedBox(height: 15),
-              Center(
-                child: SizedBox(
-                  height: 47,
-                  width: 200,
-                  child: FloatingActionButton(
-                    onPressed: (){
-                      Navigator.pop(context, MaterialPageRoute(builder: (context) => const ProfilePage()) );
-                    },
-                    backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-                    child: const Text('Save', style: TextStyle(fontSize: 16, color: Colors.white)),
+              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+                child: Text(
+                  "Confirm Password",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  onChanged: (value) {
+                    user.password_confirmation = value;
+                  },
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    labelText: 'Confirm Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          updateAddress();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
+                        ),
+                        child: const Text(
+                          'Save',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          String? token = await storageService.getToken();
+                          http.delete(Uri.parse("http://192.168.1.7:8000/api/auth/delete"),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json',
+                              'Authorization': "Bearer $token",
+                            }).then((response) {
+                            if (response.statusCode == 200){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogInPage()));
+                            }
+                            else{
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Something Went Wrong!")));
+                            }
+                          });
+                          },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 220, 0, 0), // Set button color
+                        ),
+                        child: const Text(
+                          'Delete Account',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
             ],
           ),
         ),

@@ -35,6 +35,16 @@ class User {
     });
   }
 
+  String updatetojson() {
+    return jsonEncode(<String, dynamic>{
+      'name' : name,
+      'email' : email,
+      'address' : address,
+      'password' : password,
+      'password_confirmation' : password_confirmation
+    });
+  }
+
   String logintojson(){
     return jsonEncode(<String, dynamic>{
       'email' : email,

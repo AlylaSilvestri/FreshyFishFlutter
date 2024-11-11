@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/log_in_page.dart';
 import 'package:freshy_fish/profile_edit_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -9,6 +14,28 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
+  late Future<Map<String, dynamic>> me;
+  StorageService storageService = StorageService();
+
+  @override
+  void initState() {
+    super.initState();
+    me = getMe();
+  }
+
+  Future<Map<String, dynamic>> getMe() async {
+    StorageService storageService = StorageService();
+    String? token = await storageService.getToken();
+
+    var response = await http.get(Uri.parse("http://192.168.1.7:8000/api/auth/me"), headers: <String, String>{
+      'Content-Type': 'application/json',
+      'Authorization': "Bearer $token"
+    });
+    return jsonDecode(response.body);
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,26 +54,34 @@ class ProfilePageState extends State<ProfilePage> {
                     Image.asset('assets/logo_putih.png', scale: 1.5),
                     const SizedBox(height: 20),
                     const CircleAvatar(
-                      radius: 70,
+                      radius: 50,
                       backgroundImage: NetworkImage(
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHDT8TZp9Ized8FRjPMwrliwxAbd6JqlxZqQ&s',
                       ),
                     ),
-                    const Align(
+                    Align(
                       alignment: Alignment.center,
                       child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-                        child: Text(
-                          "User Name",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                        child:
+                        FutureBuilder(
+                            future: me,
+                            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator(
+                              color: Color.fromARGB(255, 0, 150, 200), // Your app's blue color
+                              backgroundColor: Colors.white,
+                            );
+                          } else if (snapshot.hasError) {
+                            return const Text("error");
+                          } else {
+                            return Text("${snapshot.data["data"]["name"]}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center,
+                            );
+                          }
+                          }
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
                   ],
                 ),
               ),
@@ -59,8 +94,20 @@ class ProfilePageState extends State<ProfilePage> {
               const Divider(endIndent: 20, indent: 20),
               Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: Text(
-                  'Jln Sancang Dalam no. 5, kel. Kijang Besar, kec. Bogor Utara'
+                child: FutureBuilder(
+                    future: me,
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator(
+                          color: Color.fromARGB(255, 0, 150, 200), // Your app's blue color
+                          backgroundColor: Colors.white,
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Text("error");
+                      } else {
+                        return Text("${snapshot.data["data"]["address"] ?? '[Your Address is not Added Yet]'}",);
+                      }
+                    }
                 ),
               ),
               const Divider(endIndent: 20, indent: 20),
@@ -73,34 +120,21 @@ class ProfilePageState extends State<ProfilePage> {
               const Divider(endIndent: 20, indent: 20),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: Text(
-                    'del@gmail.com'
-                ),
-              ),
-              const Divider(endIndent: 20, indent: 20),
-              Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child:Text(
-                  'Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-              ),
-              const Divider(endIndent: 20, indent: 20),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '*************',
-                      style: TextStyle(fontSize: 18), // Optional styling for text
-                    ), // Spacing between text and icon
-                    Padding(padding: EdgeInsets.fromLTRB(0, 0, 20, 0), child: Icon(
-                      Icons.remove_red_eye_rounded,
-                      color: Colors.grey,
-                      size: 25,
-                    ),
-                    ),
-                  ],
+                child: FutureBuilder(
+                    future: me,
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator(
+                          color: Color.fromARGB(255, 0, 150, 200), // Your app's blue color
+                          backgroundColor: Colors.white,
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Text("error");
+                      } else {
+                        return Text("${snapshot.data["data"]["email"]}"
+                        );
+                      }
+                    }
                 ),
               ),
               const Divider(endIndent: 20, indent: 20),
@@ -154,7 +188,12 @@ class ProfilePageState extends State<ProfilePage> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LogInPage()),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
                         ),

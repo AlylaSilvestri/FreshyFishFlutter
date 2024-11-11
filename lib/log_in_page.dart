@@ -17,6 +17,7 @@ class LogInPage extends StatefulWidget {
 
 class _LogInPageState extends State<LogInPage> {
   User user = User();
+  bool isRememberMe = false;
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +74,12 @@ class _LogInPageState extends State<LogInPage> {
                         Row(
                           children: [
                             Checkbox(
-                                value: false,
-                                onChanged: (value){}),
+                                value: isRememberMe,
+                                onChanged: (value){
+                                  setState(() {
+                                    isRememberMe = value!;
+                                  });
+                                }),
                             const Text("Remember me"),
                           ],
                         ),
@@ -90,7 +95,7 @@ class _LogInPageState extends State<LogInPage> {
                       width: 280,
                       child: FloatingActionButton(
                         onPressed: (){
-                          http.post(Uri.parse('http://13.13.13.74:8000/api/auth/login'),
+                          http.post(Uri.parse('http://192.168.1.7:8000/api/auth/login'),
                               headers: <String, String>{
                                 'Content-Type': 'application/json'
                               },
