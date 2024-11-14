@@ -4,6 +4,7 @@ class User {
   String? name;
   String? email;
   String? address;
+  String? phone_number;
   String? password;
   String? password_confirmation;
 
@@ -11,6 +12,7 @@ class User {
     this.name,
     this.email,
     this.address,
+    this.phone_number,
     this.password,
     this.password_confirmation,
   });
@@ -20,6 +22,7 @@ class User {
       name: json['name'],
       email: json['email'],
       address: json['address'],
+      phone_number: json['phone_number'],
       password: json['password'],
       password_confirmation: json['password_confirmation'],
     );
@@ -30,6 +33,7 @@ class User {
       'name' : name,
       'email' : email,
       'address' : address,
+      'phone_number' : phone_number,
       'password' : password,
       'password_confirmation' : password_confirmation
     });
@@ -39,7 +43,7 @@ class User {
     return jsonEncode(<String, dynamic>{
       'name' : name,
       'email' : email,
-      'address' : address,
+      'phone_number' : phone_number,
       'password' : password,
       'password_confirmation' : password_confirmation
     });

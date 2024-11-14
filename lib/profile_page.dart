@@ -27,7 +27,7 @@ class ProfilePageState extends State<ProfilePage> {
     StorageService storageService = StorageService();
     String? token = await storageService.getToken();
 
-    var response = await http.get(Uri.parse("http://192.168.1.7:8000/api/auth/me"), headers: <String, String>{
+    var response = await http.get(Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"), headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': "Bearer $token"
     });

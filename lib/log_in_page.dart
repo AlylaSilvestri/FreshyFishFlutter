@@ -95,7 +95,7 @@ class _LogInPageState extends State<LogInPage> {
                       width: 280,
                       child: FloatingActionButton(
                         onPressed: (){
-                          http.post(Uri.parse('http://192.168.1.7:8000/api/auth/login'),
+                          http.post(Uri.parse('https://freshyfishapi.ydns.eu/api/auth/login'),
                               headers: <String, String>{
                                 'Content-Type': 'application/json'
                               },
@@ -104,7 +104,7 @@ class _LogInPageState extends State<LogInPage> {
                             if (response.statusCode == 200){
                               print("success");
                               var res = jsonDecode(response.body);
-                              StorageService().saveToken(res["data"]["token"]);
+                              StorageService().saveToken(res["token"]);
                               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
                             }
                             else{

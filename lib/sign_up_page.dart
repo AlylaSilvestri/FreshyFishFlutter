@@ -26,7 +26,7 @@ class SignUpPageState extends State<SignUpPage> {
                 color: const Color.fromARGB(255, 0, 150, 200),
                 child: Column(
                   children: [
-                    const SizedBox(height: 90),
+                    const SizedBox(height: 55),
                     Image.asset(
                       'assets/logo_putih.png',
                       scale: 1.5,
@@ -76,6 +76,19 @@ class SignUpPageState extends State<SignUpPage> {
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      onChanged: (phone_number) {
+                        user.phone_number = phone_number;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        prefixIcon: const Icon(Icons.phone_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
                       onChanged: (password) {
                         user.password = password;
                       },
@@ -111,7 +124,7 @@ class SignUpPageState extends State<SignUpPage> {
                           http
                               .post(
                             Uri.parse(
-                                'http://192.168.1.7:8000/api/auth/register'),
+                                'https://freshyfishapi.ydns.eu/api/auth/register'),
                             headers: <String, String>{
                               'Content-Type': 'application/json'
                             },

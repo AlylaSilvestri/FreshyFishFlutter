@@ -21,8 +21,9 @@ class _FishDetailPageState extends State<FishDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.fishName),
+        title: Text(widget.fishName, style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: Center(
         child: Column(

@@ -31,7 +31,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
     String? token = await storageService.getToken();
 
     final response = await http.put(
-      Uri.parse('http://192.168.1.7:8000/api/auth/update'),
+      Uri.parse('https://freshyfishapi.ydns.eu/api/auth/update'),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
@@ -55,7 +55,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
   void getMe() async {
     String? token = await storageService.getToken();
     var response = await http.get(
-      Uri.parse("http://192.168.1.7:8000/api/auth/me"),
+      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': "Bearer $token",
@@ -259,7 +259,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                       child: ElevatedButton(
                         onPressed: () async {
                           String? token = await storageService.getToken();
-                          http.delete(Uri.parse("http://192.168.1.7:8000/api/auth/delete"),
+                          http.delete(Uri.parse("https://freshyfishapi.ydns.eu/api/auth/delete"),
                             headers: <String, String>{
                               'Content-Type': 'application/json',
                               'Authorization': "Bearer $token",
