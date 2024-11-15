@@ -139,7 +139,6 @@ class SignUpPageState extends State<SignUpPage> {
                                 ),
                               );
                             } else {
-                              print(response.body);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(

@@ -64,7 +64,7 @@ class NavbarState extends State<MainPage> {
                 });
               },
               icon: const Icon(
-                Icons.shopping_cart_checkout_rounded,
+                Icons.history_rounded,
                 size: 35,
                 color: Color.fromARGB(255, 0, 150, 200),
               ),

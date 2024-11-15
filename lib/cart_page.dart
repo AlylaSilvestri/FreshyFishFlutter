@@ -100,15 +100,25 @@ class CartPageState extends State<CartPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 0),
-                                    child: const Text(
-                                      'Lele',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(10, 10, 0, 0),
+                                        child: const Text(
+                                          'Lele',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      SizedBox(width: 120),
+                                      IconButton(
+                                          onPressed: (){},
+                                          icon: Icon(Icons.delete, color: Colors.red)
+                                      ),
+                                    ],
                                   ),
+
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                                     child: const Text(

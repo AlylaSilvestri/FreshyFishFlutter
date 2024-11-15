@@ -15,7 +15,7 @@ class SplashDuaPage extends StatelessWidget {
               const SizedBox(height: 120,),
               Image.asset('assets/logo_black.png'),
               const SizedBox(height: 30),
-              Image.asset('assets/splash2.png', scale: 1.5),
+              Image.asset('assets/splash2.png', scale: 1.6),
               const SizedBox(height: 100),
               const Text("Various Options", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
               const Padding(padding: EdgeInsets.fromLTRB(12, 0, 12, 25), child: Text("Find a wide selection of high-quality fresh fish at affordable prices only on our consumer fish e-commerce app.", style: TextStyle(fontSize: 16),textAlign: TextAlign.center,),),

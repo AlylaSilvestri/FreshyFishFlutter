@@ -107,7 +107,6 @@ class HomePageState extends State<HomePage> {
                       const Spacer(),
                       IconButton(
                         onPressed: () {
-                          getMe();
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const CartPage()),
