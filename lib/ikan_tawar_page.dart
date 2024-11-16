@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/main_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
+import 'package:http/http.dart' as http;
 
 class IkanTawarPage extends StatefulWidget {
   const IkanTawarPage({super.key});
@@ -10,12 +14,25 @@ class IkanTawarPage extends StatefulWidget {
 }
 
 class IkanTawarPageState extends State<IkanTawarPage> {
-  late Future<dynamic> me;
+  late Future<Map<String, dynamic>> me;
+  StorageService storageService = StorageService();
 
   @override
   void initState() {
     super.initState();
-    // me = getMe();
+    me = getMe();
+  }
+
+  Future<Map<String, dynamic>> getMe() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+    return jsonDecode(response.body);
   }
 
   @override
@@ -37,8 +54,45 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                       const SizedBox(width: 20),
                       Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
                       const SizedBox(width: 10),
-                      Text('Hi, ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                      Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text('Hi, ',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      FutureBuilder(
+                        future: me,
+                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return const Text("error");
+                          } else {
+                            return SizedBox(
+                              width: 200,
+                              child: Text(
+                                "${snapshot.data["data"]["name"]}",
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                            Text(
+                              "${snapshot.data["data"]["name"]}",
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -49,7 +103,8 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 5),
                     child: const Row(
                       children: [
                         SizedBox(width: 10),
@@ -73,7 +128,7 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 500,
@@ -83,128 +138,135 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(width: 15),
+                        const SizedBox(width: 15),
                         FloatingActionButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const MainPage()) );
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const MainPage()));
                           },
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50)
+                              borderRadius: BorderRadius.circular(50)),
+                          backgroundColor:
+                          const Color.fromARGB(255, 0, 150, 200),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 30,
                           ),
-                          backgroundColor: Colors.blue, // Set background color to blue
-                          child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         const Text(
                           'Ikan Tawar',
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue, // Set text color
+                            color: Color.fromARGB(255, 0, 150, 200),
                           ),
                         ),
                       ],
                     ),
                   ),
                   SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                       childAspectRatio: 1,
                     ),
                     delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                          if (index == 0) {
-                            return Card(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                          (context, index) {
+                        if (index == 0) {
+                          return Card(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg',
+                                      height: 90,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    "Ikan Payau",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const Text(
+                                    "Rp 60.000",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.cyan,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              elevation: 4,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg', // Replace with the actual image URL
-                                        height: 90,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
+                            ),
+                          );
+                        } else {
+                          return Card(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Image.network(
+                                      'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
+                                      height: 90,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
                                     ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      "Ikan Payau",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue[800],
-                                      ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    "Ikan Bandeng",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
                                     ),
-                                    const Text(
-                                      "Rp 60.000",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.cyan,
-                                      ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  const Text(
+                                    "Rp 25.000 /kg",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.cyan,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            );
-                          }  else {
-                            return Card(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              elevation: 4,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network(
-                                        'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367', // Replace with a different image URL
-                                        height: 90,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      "Ikan Bandeng",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue[800],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    const Text(
-                                      "Rp 25.000 /kg", // Different price
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.cyan,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-                          // Return an empty container for other indices
-                        },
-                        childCount: 4), // Set the number of children here
-
+                            ),
+                          );
+                        }
+                      },
+                      childCount: 2,
+                    ),
                   ),
                 ],
               ),

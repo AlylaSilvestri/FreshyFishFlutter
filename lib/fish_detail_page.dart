@@ -46,7 +46,7 @@ class _FishDetailPageState extends State<FishDetailPage> {
                 );
               },
               icon: const Icon(
-                Icons.shopping_bag_rounded,
+                Icons.shopping_cart_outlined,
                 size: 30,
                 color: Colors.white,
               ),
@@ -133,7 +133,7 @@ class _FishDetailPageState extends State<FishDetailPage> {
                                       backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
                                     ),
                                     child: const Icon(
-                                        Icons.shopping_bag_outlined,
+                                        Icons.add_shopping_cart_outlined,
                                         color: Colors.white,
                                       size: 25,
                                     ),

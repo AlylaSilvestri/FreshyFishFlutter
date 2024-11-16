@@ -126,7 +126,8 @@ class SignUpPageState extends State<SignUpPage> {
                             Uri.parse(
                                 'https://freshyfishapi.ydns.eu/api/auth/register'),
                             headers: <String, String>{
-                              'Content-Type': 'application/json'
+                              'Content-Type': 'application/json',
+                              'Accept': 'application/json '
                             },
                             body: user.registertojson(),
                           )
@@ -139,6 +140,7 @@ class SignUpPageState extends State<SignUpPage> {
                                 ),
                               );
                             } else {
+                              print(response.body);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(

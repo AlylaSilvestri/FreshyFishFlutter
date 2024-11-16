@@ -50,7 +50,7 @@ class HomePageState extends State<HomePage> {
               color: const Color.fromARGB(255, 0, 150, 200),
               child: Column(
                 children: [
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 40),
                   Row(
                     children: [
                       const SizedBox(width: 20),
@@ -113,14 +113,14 @@ class HomePageState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(
-                          Icons.shopping_bag_rounded,
+                          Icons.shopping_cart_outlined,
                           size: 40,
                           color: Colors.white,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
                   Container(
                     width: 320,
                     height: 40,
@@ -180,7 +180,7 @@ class HomePageState extends State<HomePage> {
                             'Ikan Payau',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
-                          backgroundColor: Colors.blue,
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -196,7 +196,7 @@ class HomePageState extends State<HomePage> {
                             'Ikan Laut',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
-                          backgroundColor: Colors.blue,
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -212,13 +212,16 @@ class HomePageState extends State<HomePage> {
                             'Ikan Tawar',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
-                          backgroundColor: Colors.blue,
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                       ],
                     ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 5),
                   ),
                   SliverGrid(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -248,15 +251,18 @@ class HomePageState extends State<HomePage> {
                       childCount: 2,
                     ),
                   ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 20),
+                  ),
                 ],
               ),
             ),
+            SizedBox(height: 10),
           ],
         ),
       ),
     );
   }
-
   Widget fishCard({required String imageUrl, required String title, required String price}) {
     return Card(
       color: Colors.white,
@@ -264,7 +270,8 @@ class HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 4,
-      child: Padding(
+      child:
+      Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +291,7 @@ class HomePageState extends State<HomePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue[800],
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 5),

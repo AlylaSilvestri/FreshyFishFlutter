@@ -19,6 +19,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
   bool passwordVisible = false;
   StorageService storageService = StorageService();
   User user = new User();
+  late String id;
 
   @override
   void initState() {
@@ -31,10 +32,11 @@ class ProfileEditPageState extends State<ProfileEditPage> {
     String? token = await storageService.getToken();
 
     final response = await http.put(
-      Uri.parse('https://freshyfishapi.ydns.eu/api/auth/update'),
+      Uri.parse('https://freshyfishapi.ydns.eu/api/auth/user/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json'
       },
       body: user.updatetojson()
     );
@@ -46,6 +48,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
         MaterialPageRoute(builder: (context) => const MainPage()),
       );
     } else {
+      print(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to update address')),
       );
@@ -66,6 +69,9 @@ class ProfileEditPageState extends State<ProfileEditPage> {
       user.name = data["data"]["name"];
       user.email = data["data"]["email"];
       user.address = data["data"]["address"];
+      user.phone_number = data["data"]["phone_number"];
+      id = data["data"]["ID_user"].toString();
+      print(id);
     });
   }
 
@@ -125,9 +131,10 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                   onChanged: (value) {
                     user.address = value;
                   },
+                  style: TextStyle(fontSize: 13),
                   controller: TextEditingController(text: user.address),
                   decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 50),
                     labelText: 'Address',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -153,7 +160,7 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                   },
                   controller: TextEditingController(text: user.email),
                   decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 50),
                     labelText: 'Email',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
@@ -162,28 +169,32 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                 ),
               ),
               const SizedBox(height: 15),
-              // const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-              //   child: Text(
-              //     "Phone",
-              //     style: TextStyle(
-              //       fontSize: 22,
-              //       fontWeight: FontWeight.bold,
-              //     ),
-              //   ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              //   child: TextField(
-              //     decoration: InputDecoration(
-              //       constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
-              //       labelText: 'Phone',
-              //       border: OutlineInputBorder(
-              //         borderRadius: BorderRadius.circular(30.0),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(height: 15),
+              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+                child: Text(
+                  "Phone",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  onChanged: (value){
+                    user.phone_number = value;
+                  },
+                  controller: TextEditingController(text: user.phone_number),
+                  decoration: InputDecoration(
+                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
+                    labelText: 'Phone',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
               const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Password",

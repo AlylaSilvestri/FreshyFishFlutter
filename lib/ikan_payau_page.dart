@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/main_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
+import 'package:http/http.dart' as http;
 
 class IkanPayauPage extends StatefulWidget {
   const IkanPayauPage({super.key});
@@ -10,12 +14,25 @@ class IkanPayauPage extends StatefulWidget {
 }
 
 class IkanPayauPageState extends State<IkanPayauPage> {
-  late Future<dynamic> me;
+  late Future<Map<String, dynamic>> me;
+  StorageService storageService = StorageService();
 
   @override
   void initState() {
     super.initState();
-    // me = getMe();
+    me = getMe();
+  }
+
+  Future<Map<String, dynamic>> getMe() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+    return jsonDecode(response.body);
   }
 
   @override
@@ -37,8 +54,44 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                       const SizedBox(width: 20),
                       Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
                       const SizedBox(width: 10),
-                      Text('Hi, ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                      Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text(
+                        'Hi, ',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      FutureBuilder(
+                        future: me,
+                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return const Text("error");
+                          } else {
+                            return SizedBox(
+                              width: 200,
+                              child: Text(
+                                "${snapshot.data["data"]["name"]}",
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                            Text(
+                              "${snapshot.data["data"]["name"]}",
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -73,7 +126,7 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 500,
@@ -83,24 +136,23 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(width: 15),
+                        const SizedBox(width: 15),
                         FloatingActionButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const MainPage()) );
+                            Navigator.pushReplacement(
+                                context, MaterialPageRoute(builder: (context) => const MainPage()));
                           },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)
-                          ),
-                          backgroundColor: Colors.blue, // Set background color to blue
-                          child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                          backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+                          child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         const Text(
                           'Ikan Payau',
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue, // Set text color
+                            color: Color.fromARGB(255, 0, 150, 200),
                           ),
                         ),
                       ],
@@ -130,7 +182,7 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: Image.network(
-                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg', // Replace with the actual image URL
+                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg',
                                       height: 90,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
@@ -138,11 +190,11 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                      "Ikan Payau",
+                                    "Ikan Payau",
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue[800],
+                                      color: Colors.black,
                                     ),
                                   ),
                                   const Text(
@@ -157,7 +209,7 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                               ),
                             ),
                           );
-                        }  else {
+                        } else {
                           return Card(
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
@@ -165,14 +217,14 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                             ),
                             elevation: 4,
                             child: Padding(
-                                padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8.0),
                                     child: Image.network(
-                                      'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367', // Replace with a different image URL
+                                      'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
                                       height: 90,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
@@ -184,12 +236,12 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue[800],
+                                      color: Colors.black,
                                     ),
                                   ),
                                   const SizedBox(height: 5),
                                   const Text(
-                                    "Rp 25.000 /kg", // Different price
+                                    "Rp 25.000 /kg",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -201,10 +253,9 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                             ),
                           );
                         }
-                          // Return an empty container for other indices
                       },
-                      childCount: 4), // Set the number of children here
-
+                      childCount: 10,
+                    ),
                   ),
                 ],
               ),

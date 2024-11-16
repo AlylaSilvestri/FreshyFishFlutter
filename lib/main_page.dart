@@ -12,73 +12,89 @@ class MainPage extends StatefulWidget {
 }
 
 class NavbarState extends State<MainPage> {
-  int cuttenIndex = 0;
-  List screens = const [
+  int selectedIndex = 0;
+  List<Widget> page = <Widget>[
     HomePage(),
     OrderHistoryPage(),
     ProfilePage(),
   ];
 
+  final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[cuttenIndex],
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        elevation: 1,
-        color: Colors.white,
-        notchMargin: 10,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttenIndex = 0;
-                });
-              },
-              icon: const Icon(
-                Icons.home_outlined,
-                size: 35,
-                color: Color.fromARGB(255, 0, 150, 200),
-              ),
+      extendBody: true,
+      resizeToAvoidBottomInset: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        width: 350,
+        height: 70,
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 0, 150, 200),
+          borderRadius: BorderRadius.all(
+            Radius.circular(50),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: NavigationBar(
+            selectedIndex: selectedIndex,
+            backgroundColor: Colors.transparent,
+            indicatorColor: Color.fromARGB(250, 0, 140, 200),
+            indicatorShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
-            // IconButton(
-            //   onPressed: () {
-            //     setState(() {
-            //       cuttenIndex = 1;
-            //     });
-            //   },
-            //   icon: const Icon(
-            //     Icons.favorite_border_rounded,
-            //     size: 25,
-            //     color: Color.fromARGB(255, 0, 150, 200),
-            //   ),
-            // ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttenIndex = 1;
-                });
-              },
-              icon: const Icon(
-                Icons.history_rounded,
-                size: 35,
-                color: Color.fromARGB(255, 0, 150, 200),
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            onDestinationSelected: (int index) {
+              setState(() {
+                selectedIndex = index;
+                _pageController.animateToPage(page.indexOf(page[index]),
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeInOut);
+              });
+            },
+            destinations: [
+              NavigationDestination(
+                  icon: Icon(Icons.home, color: Colors.white, size: 30),
+                  label: 'Home'),
+              NavigationDestination(
+                icon: Icon(Icons.history_rounded, color: Colors.white, size: 30),
+                label: 'Order History',
               ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttenIndex = 2;
-                });
-              },
-              icon: const Icon(
-                Icons.person_2_outlined,
-                size: 35,
-                color: Color.fromARGB(255, 0, 150, 200),
+              NavigationDestination(
+                icon: Icon(Icons.person_rounded, color: Colors.white, size: 30),
+                label: 'Profile',
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Container(
+        decoration:
+        const BoxDecoration(color: Color.fromARGB(255, 241, 244, 249)),
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                },
+                children: page,
               ),
             ),
           ],

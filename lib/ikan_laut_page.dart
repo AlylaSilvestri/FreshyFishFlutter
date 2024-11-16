@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/fish_detail_page.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/main_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:freshy_fish/services/storage_service.dart';
 
 class IkanLautPage extends StatefulWidget {
   const IkanLautPage({super.key});
@@ -11,6 +15,27 @@ class IkanLautPage extends StatefulWidget {
 }
 
 class IkanLautPageState extends State<IkanLautPage> {
+  late Future<Map<String, dynamic>> me;
+  StorageService storageService = StorageService();
+
+  @override
+  void initState() {
+    super.initState();
+    me = getMe();
+  }
+
+  Future<Map<String, dynamic>> getMe() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+    return jsonDecode(response.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,12 +51,46 @@ class IkanLautPageState extends State<IkanLautPage> {
                   const SizedBox(height: 50),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 20),
                       Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
                       const SizedBox(width: 10),
-                      Text('Hi, ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                      Text('User', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text('Hi, ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                      FutureBuilder(
+                        future: me,
+                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return const Text("error");
+                          } else {
+                            return SizedBox(
+                              width: 200,
+                              child: Text(
+                                "${snapshot.data["data"]["name"]}",
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                            Text(
+                              "${snapshot.data["data"]["name"]}",
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -79,12 +138,12 @@ class IkanLautPageState extends State<IkanLautPage> {
                         SizedBox(width: 15),
                         FloatingActionButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const MainPage()));
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
                           },
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50)
                           ),
-                          backgroundColor: Colors.blue, // Set background color to blue
+                          backgroundColor: Color.fromARGB(255, 0, 150, 200),
                           child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30),
                         ),
                         SizedBox(width: 10),
@@ -93,7 +152,7 @@ class IkanLautPageState extends State<IkanLautPage> {
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue, // Set text color
+                            color: Color.fromARGB(255, 0, 150, 200),
                           ),
                         ),
                       ],
@@ -158,7 +217,7 @@ class IkanLautPageState extends State<IkanLautPage> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue[800],
+                                      color: Colors.black,
                                     ),
                                   ),
                                   Text(

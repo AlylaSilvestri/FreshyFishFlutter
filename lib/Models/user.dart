@@ -41,10 +41,10 @@ class User {
 
   String updatetojson() {
     return jsonEncode(<String, dynamic>{
-      'name' : name,
       'email' : email,
       'phone_number' : phone_number,
       'password' : password,
+      'address' : address,
       'password_confirmation' : password_confirmation
     });
   }
