@@ -7,25 +7,32 @@ import 'main_page.dart';
 
 class CartPage extends StatefulWidget {
   final String? userId;
-  const CartPage({super.key, this.userId});
+  final String? productId;
+  const CartPage({super.key, this.userId, this.productId});
 
   @override
   State<CartPage> createState() => CartPageState();
 }
 
 class CartPageState extends State<CartPage> {
+  late Future<List<Map<String, dynamic>>> keranjangFuture;
   late Future<Map<String, dynamic>> me;
-  late Future<List<Map<String, dynamic>>> keranjang;
+  // late Future<List<Map<String, dynamic>>> keranjang;
   final StorageService storageService = StorageService();
   bool isLoading = false;
   double totalPrice = 0;
   double shippingCost = 0;
+  String? ID_user;
+  String? ID_product;
 
   @override
   void initState() {
     super.initState();
-    me = getMe();
-    keranjang = getKeranjang();
+    me = getMe().then((userData){
+      keranjangFuture = getKeranjang();
+      return userData;
+    });
+
   }
 
   Future<Map<String, dynamic>> getMe() async {
@@ -37,7 +44,11 @@ class CartPageState extends State<CartPage> {
         'Authorization': "Bearer $token",
       },
     );
-    return jsonDecode(response.body);
+    var data = jsonDecode(response.body);
+    setState(() {
+      ID_user = data["data"]["ID_user"].toString();
+    });
+    return data;
   }
 
   Future<List<Map<String, dynamic>>> getKeranjang() async {
@@ -45,7 +56,7 @@ class CartPageState extends State<CartPage> {
     try {
       String? token = await storageService.getToken();
       var response = await http.get(
-        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang?user_id=${widget.userId}"),
+        Uri.parse("https://freshyfishapi.ydns.eu/api/detail-keranjang/$ID_user"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': "Bearer $token",
@@ -58,7 +69,9 @@ class CartPageState extends State<CartPage> {
         calculateTotals(data);
         return data.map((item) => item as Map<String, dynamic>).toList();
       } else {
-        throw Exception('Failed to load cart items');
+        print(response.body);
+        print('Error response: ${response.body}');
+        throw Exception('Failed to load cart: ${response.body}');
       }
     } catch (e) {
       throw Exception('Error: $e');
@@ -67,28 +80,73 @@ class CartPageState extends State<CartPage> {
     }
   }
 
-  Future<void> updateQuantity(String cartItemId, int quantity) async {
+  Future<void> updateQuantity(String productId, int quantity) async {
+    setState(() => isLoading = true);
     try {
       String? token = await storageService.getToken();
-      var response = await http.put(
-        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$cartItemId"),
+      var response = await http.post(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$ID_user/add-product"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': "Bearer $token",
         },
-        body: jsonEncode({'quantity': quantity}),
+        body: jsonEncode({'quantity': quantity, 'ID_produk' : productId}),
       );
 
       if (response.statusCode == 200) {
         print(response.body);
+        final updatedData = await getKeranjang();
         setState(() {
-          keranjang = getKeranjang();
+          keranjangFuture = Future.value(updatedData);
+          isLoading = false;
         });
       } else {
-        throw Exception('Failed to update quantity');
+        print(response.body);
+        throw Exception('Failed to update quantity: ${response.body}');
       }
     } catch (e) {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> reduceQuantity(String productId, int currentQuantity) async {
+    setState(() => isLoading = true);
+    try {
+      String? token = await storageService.getToken();
+
+      if (currentQuantity <= 1) {
+        // If quantity is 1 or less, delete the item
+        await deleteCartItem(productId);
+      } else {
+        // Reduce quantity by 1
+        var response = await http.post(
+          Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$ID_user/reduce-product"),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer $token",
+          },
+          body: jsonEncode({
+            'ID_produk': productId,
+            'quantity': currentQuantity - 1
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          print('Product quantity reduced successfully');
+          final updatedData = await getKeranjang();
+          setState(() {
+            keranjangFuture = Future.value(updatedData);
+          });
+        } else {
+          print('Failed to reduce quantity: ${response.body}');
+          throw Exception('Failed to reduce quantity: ${response.body}');
+        }
+      }
+    } catch (e) {
+      print('Error reducing quantity: $e');
       throw Exception('Error: $e');
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -96,7 +154,7 @@ class CartPageState extends State<CartPage> {
     try {
       String? token = await storageService.getToken();
       var response = await http.delete(
-        Uri.parse("https://freshyfishapi.ydns.eu/api/cart/$cartItemId"),
+        Uri.parse("https://freshyfishapi.ydns.eu/api/detail-keranjang/${ID_product}"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': "Bearer $token",
@@ -104,10 +162,12 @@ class CartPageState extends State<CartPage> {
       );
 
       if (response.statusCode == 200) {
+        print(response.body);
         setState(() {
-          keranjang = getKeranjang();
+          keranjangFuture = getKeranjang();
         });
       } else {
+        print(response.body);
         throw Exception('Failed to delete item');
       }
     } catch (e) {
@@ -116,36 +176,29 @@ class CartPageState extends State<CartPage> {
   }
 
   void calculateTotals(List<dynamic> items) {
-
     double subtotal = 0;
     for (var item in items) {
-      double price = 0;
-      if(item['fish_price'] != null){
-        String priceStr = item['fish_price'].toString()
-            .replaceAll('Rp ', '')
-            .replaceAll(',', '');
+
+      if (item['produk'] != null && item['produk']['fish_price'] != null) {
+        // No need for string replacements, just convert directly
+        String priceStr = item['produk']['fish_price'].toString();
 
         try {
-          price = double.parse(priceStr);
-        } catch(e){
+
+          double price = double.parse(priceStr);
+          int quantity = item['quantity'] ?? 1;
+          subtotal += price * quantity;
+        } catch (e) {
           print('Error parsing price: $e');
-          price = 0;
         }
       }
-      int quantity = item['order_quantity'] ?? 1;
-      subtotal += price * quantity;
-      }
+    }
+
     shippingCost = 10000;
 
     setState(() {
       totalPrice = subtotal + shippingCost;
     });
-    //   subtotal += (item['fish_price'] ?? 0) * (item['order_quantity'] ?? 1);
-    // }
-    // shippingCost = 10000; // Fixed shipping cost
-    // setState(() {
-    //   totalPrice = subtotal + shippingCost;
-    // });
   }
 
   @override
@@ -197,7 +250,7 @@ class CartPageState extends State<CartPage> {
             SizedBox(
               height: 450,
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: keranjang,
+                future: keranjangFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting ||
                       isLoading) {
@@ -254,7 +307,7 @@ class CartPageState extends State<CartPage> {
                                               child: Text(
                                                 item['produk']['fish_type'] ?? 'Unknown',
                                                 style: const TextStyle(
-                                                  fontSize: 20,
+                                                  fontSize: 17,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -262,7 +315,7 @@ class CartPageState extends State<CartPage> {
                                             const Spacer(),
                                             IconButton(
                                               onPressed: () => deleteCartItem(
-                                                  item['id'].toString()),
+                                                  item['ID_produk'].toString()),
                                               icon: const Icon(Icons.delete,
                                                   color: Colors.red),
                                             ),
@@ -272,9 +325,9 @@ class CartPageState extends State<CartPage> {
                                           margin: const EdgeInsets.fromLTRB(
                                               10, 0, 0, 0),
                                           child: Text(
-                                            item['fish_description'] ?? '',
+                                            item['produk']['fish_description'] ?? '',
                                             style:
-                                            const TextStyle(fontSize: 15),
+                                            const TextStyle(fontSize: 14),
                                           ),
                                         ),
                                         Row(
@@ -285,9 +338,9 @@ class CartPageState extends State<CartPage> {
                                               margin: const EdgeInsets.fromLTRB(
                                                   10, 0, 0, 0),
                                               child: Text(
-                                                'Rp ${item['fish_price']?.toString() ?? '0'}',
+                                                'Rp ${item['produk']['fish_price']?.toString() ?? '0'}',
                                                 style: const TextStyle(
-                                                  fontSize: 18,
+                                                  fontSize: 15,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.cyan,
                                                 ),
@@ -302,7 +355,7 @@ class CartPageState extends State<CartPage> {
                                                     if (item['quantity'] > 1) {
                                                       updateQuantity(
                                                         item['ID_produk'].toString(),
-                                                        item['order_quantity'] - 1,
+                                                        item['quantity'] - 1,
                                                       );
                                                     }
                                                   },
@@ -316,7 +369,7 @@ class CartPageState extends State<CartPage> {
                                                       .symmetric(
                                                       horizontal: 3),
                                                   child: Text(
-                                                    '${item['order_quantity']}',
+                                                    '${item['quantity']}',
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
@@ -326,13 +379,13 @@ class CartPageState extends State<CartPage> {
                                                 ),
                                                 IconButton(
                                                   onPressed: () {
-                                                    updateQuantity(
+                                                    reduceQuantity(
                                                       item['ID_produk'].toString(),
-                                                      item['order_quantity'] + 1,
+                                                      item['quantity'],
                                                     );
                                                   },
                                                   icon: const Icon(
-                                                    Icons.add_circle,
+                                                    Icons.remove_circle,
                                                     color: Colors.orange,
                                                   ),
                                                 ),

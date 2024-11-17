@@ -14,6 +14,7 @@ class ConfirmOrderPageState extends State<ConfirmOrderPage> {
   late Future<Map<String, dynamic>> orderDetails;
   StorageService storageService = StorageService();
 
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +37,7 @@ class ConfirmOrderPageState extends State<ConfirmOrderPage> {
   Future<Map<String, dynamic>> getOrderDetails() async {
     String? token = await storageService.getToken();
     var response = await http.get(
-      Uri.parse("https://freshyfishapi.ydns.eu/api/orders/current"),
+      Uri.parse("https://freshyfishapi.ydns.eu/api/pesanan/buatpesanan"),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': "Bearer $token",
@@ -45,18 +46,17 @@ class ConfirmOrderPageState extends State<ConfirmOrderPage> {
     return jsonDecode(response.body);
   }
 
-  Future<void> confirmOrder() async {
-    String? token = await storageService.getToken();
-    await http.post(
-      Uri.parse("https://freshyfishapi.ydns.eu/api/orders/confirm"),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer $token",
-      },
-    );
-
-    Navigator.pushReplacementNamed(context, '/order-success');
-  }
+  // Future<void> confirmOrder() async {
+  //   String? token = await storageService.getToken();
+  //   await http.post(
+  //     Uri.parse("https://freshyfishapi.ydns.eu/api/orders/confirm"),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json',
+  //       'Authorization': "Bearer $token",
+  //     },
+  //   );
+  //   Navigator.pushReplacementNamed(context, '/order-success');
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +107,6 @@ class ConfirmOrderPageState extends State<ConfirmOrderPage> {
                 },
               ),
               const Divider(height: 32),
-
-              // Order Details Section
               FutureBuilder(
                 future: orderDetails,
                 builder: (context, snapshot) {
@@ -168,21 +166,21 @@ class ConfirmOrderPageState extends State<ConfirmOrderPage> {
                         // Confirm Button
                         SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: confirmOrder,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: const Text(
-                              "Confirm Order",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          // child: ElevatedButton(
+                          //   // onPressed: confirmOrder,
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+                          //     padding: const EdgeInsets.symmetric(vertical: 16),
+                          //   ),
+                          //   child: const Text(
+                          //     "Confirm Order",
+                          //     style: TextStyle(
+                          //       color: Colors.white,
+                          //       fontSize: 16,
+                          //       fontWeight: FontWeight.bold,
+                          //     ),
+                          //   ),
+                          // ),
                         ),
                       ],
                     );
