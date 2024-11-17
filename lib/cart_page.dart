@@ -1,29 +1,151 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/confirm_order_page.dart';
+import 'package:freshy_fish/services/storage_service.dart';
+import 'package:http/http.dart' as http;
 import 'main_page.dart';
 
 class CartPage extends StatefulWidget {
-  const CartPage({super.key});
+  final String? userId;
+  const CartPage({super.key, this.userId});
 
   @override
   State<CartPage> createState() => CartPageState();
 }
 
 class CartPageState extends State<CartPage> {
-  int _counter = 1;
+  late Future<Map<String, dynamic>> me;
+  late Future<List<Map<String, dynamic>>> keranjang;
+  final StorageService storageService = StorageService();
+  bool isLoading = false;
+  double totalPrice = 0;
+  double shippingCost = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    me = getMe();
+    keranjang = getKeranjang();
   }
 
-  void _decrementCounter() {
-    setState(() {
-      if (_counter > 1) {
-        _counter--;
+  Future<Map<String, dynamic>> getMe() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+    return jsonDecode(response.body);
+  }
+
+  Future<List<Map<String, dynamic>>> getKeranjang() async {
+    setState(() => isLoading = true);
+    try {
+      String? token = await storageService.getToken();
+      var response = await http.get(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang?user_id=${widget.userId}"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        final List<dynamic> data = jsonDecode(response.body);
+        calculateTotals(data);
+        return data.map((item) => item as Map<String, dynamic>).toList();
+      } else {
+        throw Exception('Failed to load cart items');
       }
+    } catch (e) {
+      throw Exception('Error: $e');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> updateQuantity(String cartItemId, int quantity) async {
+    try {
+      String? token = await storageService.getToken();
+      var response = await http.put(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$cartItemId"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+        body: jsonEncode({'quantity': quantity}),
+      );
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        setState(() {
+          keranjang = getKeranjang();
+        });
+      } else {
+        throw Exception('Failed to update quantity');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<void> deleteCartItem(String cartItemId) async {
+    try {
+      String? token = await storageService.getToken();
+      var response = await http.delete(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/cart/$cartItemId"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          keranjang = getKeranjang();
+        });
+      } else {
+        throw Exception('Failed to delete item');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  void calculateTotals(List<dynamic> items) {
+
+    double subtotal = 0;
+    for (var item in items) {
+      double price = 0;
+      if(item['fish_price'] != null){
+        String priceStr = item['fish_price'].toString()
+            .replaceAll('Rp ', '')
+            .replaceAll(',', '');
+
+        try {
+          price = double.parse(priceStr);
+        } catch(e){
+          print('Error parsing price: $e');
+          price = 0;
+        }
+      }
+      int quantity = item['order_quantity'] ?? 1;
+      subtotal += price * quantity;
+      }
+    shippingCost = 10000;
+
+    setState(() {
+      totalPrice = subtotal + shippingCost;
     });
+    //   subtotal += (item['fish_price'] ?? 0) * (item['order_quantity'] ?? 1);
+    // }
+    // shippingCost = 10000; // Fixed shipping cost
+    // setState(() {
+    //   totalPrice = subtotal + shippingCost;
+    // });
   }
 
   @override
@@ -45,12 +167,17 @@ class CartPageState extends State<CartPage> {
                       TextButton(
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MainPage()));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MainPage(),
+                            ),
+                          );
                         },
-                        child: const Icon(Icons.arrow_back_rounded,
-                            color: Colors.white, size: 35),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                          size: 35,
+                        ),
                       ),
                       const SizedBox(width: 15),
                       const Text(
@@ -69,116 +196,160 @@ class CartPageState extends State<CartPage> {
             ),
             SizedBox(
               height: 450,
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: keranjang,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting ||
+                      isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('Your cart is empty'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final item = snapshot.data![index];
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                          ),
+                          child: Column(
                             children: [
-                              Container(
-                                margin: const EdgeInsets.all(10),
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  image: const DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image: NetworkImage(
-                                        'https://images.tokopedia.net/img/cache/700/VqbcmM/2021/11/17/534aa259-44f5-4e5d-935e-d9cd60f0eaf9.png'),
-                                  ),
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(10)),
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.fromLTRB(10, 10, 0, 0),
-                                        child: const Text(
-                                          'Lele',
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
+                                  Container(
+                                    margin: const EdgeInsets.all(10),
+                                    height: 80,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: NetworkImage(
+                                          "https://freshyfishapi.ydns.eu/storage/fish_photos/${item['fish_photo']}",
                                         ),
                                       ),
-                                      SizedBox(width: 120),
-                                      IconButton(
-                                          onPressed: (){},
-                                          icon: Icon(Icons.delete, color: Colors.red)
-                                      ),
-                                    ],
-                                  ),
-
-                                  Container(
-                                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                    child: const Text(
-                                      'Beli ges',
-                                      style: TextStyle(
-                                        fontSize: 15,
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(10),
                                       ),
                                     ),
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                        child: const Text(
-                                          'Rp 80.000',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.cyan),
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              _decrementCounter();
-                                            },
-                                            icon: const Icon(Icons.remove_circle,
-                                                color: Colors.orange),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 3),
-                                            child: Text(
-                                              '$_counter',
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.fromLTRB(
+                                                  10, 10, 0, 0),
+                                              child: Text(
+                                                item['produk']['fish_type'] ?? 'Unknown',
+                                                style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
+                                            const Spacer(),
+                                            IconButton(
+                                              onPressed: () => deleteCartItem(
+                                                  item['id'].toString()),
+                                              icon: const Icon(Icons.delete,
+                                                  color: Colors.red),
+                                            ),
+                                          ],
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                              10, 0, 0, 0),
+                                          child: Text(
+                                            item['fish_description'] ?? '',
+                                            style:
+                                            const TextStyle(fontSize: 15),
                                           ),
-                                          IconButton(
-                                            onPressed: () {
-                                              _incrementCounter();
-                                            },
-                                            icon: const Icon(Icons.add_circle,
-                                                color: Colors.orange),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.fromLTRB(
+                                                  10, 0, 0, 0),
+                                              child: Text(
+                                                'Rp ${item['fish_price']?.toString() ?? '0'}',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.cyan,
+                                                ),
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    if (item['quantity'] > 1) {
+                                                      updateQuantity(
+                                                        item['ID_produk'].toString(),
+                                                        item['order_quantity'] - 1,
+                                                      );
+                                                    }
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.remove_circle,
+                                                    color: Colors.orange,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 3),
+                                                  child: Text(
+                                                    '${item['order_quantity']}',
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    updateQuantity(
+                                                      item['ID_produk'].toString(),
+                                                      item['order_quantity'] + 1,
+                                                    );
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.add_circle,
+                                                    color: Colors.orange,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -186,19 +357,22 @@ class CartPageState extends State<CartPage> {
             Container(
               width: MediaQuery.of(context).size.width,
               height: 197,
-              decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 0, 150, 200),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 0, 150, 200),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
               child: Padding(
-                  padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Ongkir',
+                        const Text(
+                          'Shipping Cost',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -206,30 +380,8 @@ class CartPageState extends State<CartPage> {
                           ),
                         ),
                         Text(
-                          'Rp 1.000.000',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Sub Total',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'Rp 10.000.000',
-                          style: TextStyle(
+                          'Rp ${shippingCost.toStringAsFixed(0)}',
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: Colors.white,
@@ -237,11 +389,11 @@ class CartPageState extends State<CartPage> {
                         ),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Total',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -250,8 +402,8 @@ class CartPageState extends State<CartPage> {
                           ),
                         ),
                         Text(
-                          'Rp 111.000.000',
-                          style: TextStyle(
+                          'Rp ${totalPrice.toStringAsFixed(0)}',
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                             color: Colors.white,
@@ -260,14 +412,23 @@ class CartPageState extends State<CartPage> {
                       ],
                     ),
                     ElevatedButton(
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ConfirmOrderPage()),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ConfirmOrderPage(),
+                          ),
                         );
                       },
-                        child: Text('ayo checkout', style: TextStyle(color: Colors.deepPurple)),
                       style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.white),
-                        minimumSize: WidgetStateProperty.all(Size(300, 40)),
+                        backgroundColor:
+                        MaterialStateProperty.all(Colors.white),
+                        minimumSize:
+                        MaterialStateProperty.all(const Size(300, 40)),
+                      ),
+                      child: const Text(
+                        'Checkout',
+                        style: TextStyle(color: Colors.deepPurple),
                       ),
                     ),
                   ],

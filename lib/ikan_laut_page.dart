@@ -188,14 +188,10 @@ class IkanLautPageState extends State<IkanLautPage> {
                                     imageUrl: index == 0
                                         ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg'
                                         : 'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
+                                    fishDesc: "",
+                                    productId: "",
+                                  userId: "",
                                 ),
-                                // FishDetailPage(
-                                //   fishName: index == 0 ? 'Ikan Payau' : 'Ikan Bandeng',
-                                //   fishPrice: index == 0 ? 'Rp 60.000' : 'Rp 25.000 /kg',
-                                //   imageUrl: index == 0
-                                //       ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg'
-                                //       : 'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
-                                // ),
                               ),
                             );
                           },

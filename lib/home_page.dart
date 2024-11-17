@@ -1,12 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/fish_detail_page.dart';
 import 'package:freshy_fish/ikan_laut_page.dart';
 import 'package:freshy_fish/ikan_payau_page.dart';
 import 'package:freshy_fish/ikan_tawar_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
-
 import 'cart_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,12 +17,18 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   late Future<Map<String, dynamic>> me;
+  late Future<List<Map<String, dynamic>>> produk;
+  String? ID_user;
   StorageService storageService = StorageService();
+  String searchQuery = '';
+  List<Map<String, dynamic>> filteredProducts = [];
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     me = getMe();
+    produk = getProduk();
   }
 
   Future<Map<String, dynamic>> getMe() async {
@@ -35,7 +40,44 @@ class HomePageState extends State<HomePage> {
         'Authorization': "Bearer $token",
       },
     );
-    return jsonDecode(response.body);
+    var data = jsonDecode(response.body);
+    setState(() {
+      ID_user = data["data"]["ID_user"].toString();
+      print(ID_user);
+    });
+    return data;
+  }
+
+  Future<List<Map<String, dynamic>>> getProduk() async {
+    setState(() => isLoading = true);
+    try {
+      String? token = await storageService.getToken();
+      var response = await http.get(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/produk"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((item) => item as Map<String, dynamic>).toList();
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  void filterProducts(String query) {
+    setState(() {
+      searchQuery = query;
+    });
   }
 
   @override
@@ -73,13 +115,13 @@ class HomePageState extends State<HomePage> {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
-                                return const Text("error");
+                                return Text("Error: ${snapshot.error}");
                               } else {
                                 return SizedBox(
                                   width: 200,
                                   height: 40,
                                   child: Text(
-                                    "${snapshot.data["data"]["name"]}",
+                                    snapshot.data?["data"]?["name"] ?? "User",
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -88,16 +130,6 @@ class HomePageState extends State<HomePage> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                );
-                                  Text(
-                                  "${snapshot.data["data"]["name"]}",
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 );
                               }
                             },
@@ -109,7 +141,7 @@ class HomePageState extends State<HomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const CartPage()),
+                            MaterialPageRoute(builder: (context) => CartPage()),
                           );
                         },
                         icon: const Icon(
@@ -123,7 +155,7 @@ class HomePageState extends State<HomePage> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      SizedBox(width: 15),
+                      const SizedBox(width: 15),
                       Container(
                         width: 280,
                         height: 40,
@@ -132,11 +164,12 @@ class HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Flexible(
                               child: TextField(
-                                decoration: InputDecoration(
+                                onChanged: filterProducts,
+                                decoration: const InputDecoration(
                                   hintText: "Search...",
                                   border: InputBorder.none,
                                 ),
@@ -145,7 +178,7 @@ class HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Container(
                         width: 40,
                         height: 40,
@@ -153,7 +186,7 @@ class HomePageState extends State<HomePage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.search,
                           color: Colors.grey,
                           size: 30,
@@ -234,49 +267,84 @@ class HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: SizedBox(height: 5),
                   ),
-                  SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        if (index == 0) {
-                          return fishCard(
-                            imageUrl:
-                            'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg',
-                            title: "Ikan Brek",
-                            price: "Rp 20.000",
-                          );
-                        } else {
-                          return fishCard(
-                            imageUrl:
-                            'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
-                            title: "Ikan Bandeng",
-                            price: "Rp 25.000",
-                          );
-                        }
-                      },
-                      childCount: 2,
-                    ),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: produk,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting || isLoading) {
+                        return const SliverFillRemaining(
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (snapshot.hasError) {
+                        return SliverFillRemaining(
+                          child: Center(child: Text('Error: ${snapshot.error}')),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const SliverFillRemaining(
+                          child: Center(child: Text('No products available')),
+                        );
+                      }
+
+                      var products = snapshot.data!;
+                      if (searchQuery.isNotEmpty) {
+                        products = products.where((product) =>
+                            product['name'].toString().toLowerCase().contains(searchQuery.toLowerCase())
+                        ).toList();
+                      }
+
+                      return SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 1,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            final product = products[index];
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => FishDetailPage(
+                                      fishName: product['fish_type'] ?? 'Unknown',
+                                      fishPrice: 'Rp ${product['fish_price']?.toString() ?? '0'}',
+                                      imageUrl: "https://freshyfishapi.ydns.eu/storage/fish_photos/${product["fish_photo"]}" ?? '',
+                                      fishDesc: "${product["fish_description"]}" ?? "",
+                                      productId: product['ID_produk']?.toString() ?? '',
+                                      userId: 'ID_user' ?? '',
+                                  )
+                                  ),
+                                );
+                              },
+                              child: fishCard(
+                                imageUrl: "https://freshyfishapi.ydns.eu/storage/fish_photos/${product["fish_photo"]}" ?? '',
+                                title: product['fish_type'] ?? 'Unknown',
+                                price: 'Rp ${product['fish_price']?.toString() ?? '0'}',
+                              ),
+                            );
+                          },
+                          childCount: products.length,
+                        ),
+                      );
+
+                    },
                   ),
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: SizedBox(height: 20),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
           ],
         ),
       ),
     );
   }
+
   Widget fishCard({required String imageUrl, required String title, required String price}) {
     return Card(
       color: Colors.white,
@@ -284,8 +352,7 @@ class HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 4,
-      child:
-      Padding(
+      child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,16 +364,26 @@ class HomePageState extends State<HomePage> {
                 height: 90,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 90,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image_not_supported),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 5),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 5),
             Text(
