@@ -94,7 +94,7 @@ class SignUpPageState extends State<SignUpPage> {
                       },
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Password (min: 6)',
                         prefixIcon: const Icon(Icons.key_sharp),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30.0),
@@ -108,7 +108,7 @@ class SignUpPageState extends State<SignUpPage> {
                       },
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'Confirm Password',
+                        labelText: 'Confirm Password (min: 6)',
                         prefixIcon: const Icon(Icons.key_sharp),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30.0),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/confirm_order_page.dart';
 import 'main_page.dart';
 
 class CartPage extends StatefulWidget {
@@ -138,7 +139,7 @@ class CartPageState extends State<CartPage> {
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.green),
+                                              color: Colors.cyan),
                                         ),
                                       ),
                                       Row(
@@ -259,7 +260,10 @@ class CartPageState extends State<CartPage> {
                       ],
                     ),
                     ElevatedButton(
-                        onPressed: (){}, 
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ConfirmOrderPage()),
+                        );
+                      },
                         child: Text('ayo checkout', style: TextStyle(color: Colors.deepPurple)),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(Colors.white),

@@ -103,8 +103,8 @@ class ProfileEditPageState extends State<ProfileEditPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "User Name",
+                    Text(
+                      "${user.name}",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

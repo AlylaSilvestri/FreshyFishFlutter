@@ -35,17 +35,21 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
             ),
           ),
           SizedBox(
-            height: 560,
+            height: 550,
             child: ListView.builder(
-              itemCount: 5,
+              itemCount: 6,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                     child: Container(
                       margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
+                        color: Colors.white,
                         borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        border: Border.all( // This adds the border
+                          color: const Color.fromARGB(255, 0, 150, 200), // Border color
+                          width: 2.0,        // Border width
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -61,6 +65,10 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
                               ),
                               borderRadius: const BorderRadius.all(
                                   Radius.circular(10)),
+                              border: Border.all( // This adds the border
+                                color: Colors.grey, // Border color
+                                width: 1.0,        // Border width
+                              ),
                             ),
                           ),
                           Column(
@@ -90,16 +98,31 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
                                   'Total 1 produk: Rp 90.000',
                                   style: TextStyle(
                                       fontSize: 14,
+                                      color: Colors.cyan,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
-                              ElevatedButton(
-                                  onPressed: (){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()) );
-                                    },
-                                  child: Text('beli lagi yu', style: TextStyle(color: Colors.deepPurple)),
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStateProperty.all(Colors.white),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 7), // Adjust padding as needed
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context, MaterialPageRoute(builder: (context) => const CartPage()));
+                                  },
+                                  child: Text(
+                                    'beli lagi yu',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Color.fromARGB(255, 0, 150, 200),
+                                    ),
+                                    shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10), // Circular border with radius 10
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],

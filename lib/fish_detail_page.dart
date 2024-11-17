@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:freshy_fish/confirm_order_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 // import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
@@ -92,7 +93,8 @@ class _FishDetailPageState extends State<FishDetailPage> {
                         ),
                         Text(
                           widget.fishPrice,
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.lightGreen),
+                          style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold, color: Colors.cyan
+                          ),
                         ),
                         Row(
                           children: [
@@ -142,7 +144,10 @@ class _FishDetailPageState extends State<FishDetailPage> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: ElevatedButton(
-                                  onPressed: (){},
+                                  onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ConfirmOrderPage()),
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
                                   ),

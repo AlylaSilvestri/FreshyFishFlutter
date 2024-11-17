@@ -121,31 +121,45 @@ class HomePageState extends State<HomePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    width: 320,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-                    child: const Row(
-                      children: [
-                        Flexible(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: "Search...",
-                              border: InputBorder.none,
-                            ),
-                          ),
+                  Row(
+                    children: [
+                      SizedBox(width: 15),
+                      Container(
+                        width: 280,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Icon(
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                        child: const Row(
+                          children: [
+                            Flexible(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: "Search...",
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
                           Icons.search,
                           color: Colors.grey,
                           size: 30,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -182,7 +196,7 @@ class HomePageState extends State<HomePage> {
                           ),
                           backgroundColor: const Color.fromARGB(255, 0, 150, 200),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                         FloatingActionButton.extended(
@@ -198,7 +212,7 @@ class HomePageState extends State<HomePage> {
                           ),
                           backgroundColor: const Color.fromARGB(255, 0, 150, 200),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                         FloatingActionButton.extended(
@@ -214,7 +228,7 @@ class HomePageState extends State<HomePage> {
                           ),
                           backgroundColor: const Color.fromARGB(255, 0, 150, 200),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                       ],

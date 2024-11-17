@@ -95,32 +95,45 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Container(
-                    width: 320,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 10),
-                        Flexible(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: "Search...",
-                              border: InputBorder.none,
-                            ),
-                          ),
+                  Row(
+                    children: [
+                      SizedBox(width: 15),
+                      Container(
+                        width: 280,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Icon(
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                        child: const Row(
+                          children: [
+                            Flexible(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: "Search...",
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
                           Icons.search,
                           color: Colors.grey,
                           size: 30,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -137,14 +150,12 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const SizedBox(width: 15),
-                        FloatingActionButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                                context, MaterialPageRoute(builder: (context) => const MainPage()));
-                          },
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                          backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-                          child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 30),
+                        IconButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
+                            },
+                            color: Color.fromARGB(255, 0, 150, 200),
+                            icon: Icon(Icons.arrow_back_rounded, size: 30)
                         ),
                         const SizedBox(width: 10),
                         const Text(

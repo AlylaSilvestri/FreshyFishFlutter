@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/main_page.dart';
@@ -15,12 +14,17 @@ class IkanTawarPage extends StatefulWidget {
 
 class IkanTawarPageState extends State<IkanTawarPage> {
   late Future<Map<String, dynamic>> me;
+  late Future<List<dynamic>> freshwaterFish;
   StorageService storageService = StorageService();
+  String searchQuery = '';
+  bool isLoading = false;
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
     me = getMe();
+    freshwaterFish = getFreshwaterFish();
   }
 
   Future<Map<String, dynamic>> getMe() async {
@@ -33,6 +37,47 @@ class IkanTawarPageState extends State<IkanTawarPage> {
       },
     );
     return jsonDecode(response.body);
+  }
+
+  Future<List<dynamic>> getFreshwaterFish() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      String? token = await storageService.getToken();
+      final response = await http.get(
+        Uri.parse('https://freshyfishapi.ydns.eu/api/produk${searchQuery.isNotEmpty ? "?search=$searchQuery" : ""}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['data'] as List<dynamic>;
+      } else {
+        throw Exception('Failed to load fish data');
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to load fish data. Please try again later.';
+      });
+      return [];
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void onSearchChanged(String query) {
+    setState(() {
+      searchQuery = query;
+      // freshwaterFish = getFreshwaterFish();
+    });
   }
 
   @override
@@ -54,14 +99,17 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                       const SizedBox(width: 20),
                       Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
                       const SizedBox(width: 10),
-                      const Text('Hi, ',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
+                      const Text(
+                        'Hi, ',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                       FutureBuilder(
                         future: me,
-                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                        builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           } else if (snapshot.hasError) {
@@ -70,7 +118,7 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                             return SizedBox(
                               width: 200,
                               child: Text(
-                                "${snapshot.data["data"]["name"]}",
+                                "${snapshot.data?["data"]["name"] ?? 'User'}",
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -80,49 +128,52 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             );
-                            Text(
-                              "${snapshot.data["data"]["name"]}",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            );
                           }
                         },
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Container(
-                    width: 320,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 5),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 10),
-                        Flexible(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: "Search...",
-                              border: InputBorder.none,
-                            ),
-                          ),
+                  Row(
+                    children: [
+                      const SizedBox(width: 15),
+                      Container(
+                        width: 280,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Icon(
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: TextField(
+                                onChanged: onSearchChanged,
+                                decoration: const InputDecoration(
+                                  hintText: "Search...",
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
                           Icons.search,
                           color: Colors.grey,
                           size: 30,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -139,22 +190,15 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const SizedBox(width: 15),
-                        FloatingActionButton(
+                        IconButton(
                           onPressed: () {
                             Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const MainPage()));
+                              context,
+                              MaterialPageRoute(builder: (context) => const MainPage()),
+                            );
                           },
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50)),
-                          backgroundColor:
-                          const Color.fromARGB(255, 0, 150, 200),
-                          child: const Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                            size: 30,
-                          ),
+                          color: const Color.fromARGB(255, 0, 150, 200),
+                          icon: const Icon(Icons.arrow_back_rounded, size: 30),
                         ),
                         const SizedBox(width: 10),
                         const Text(
@@ -168,105 +212,81 @@ class IkanTawarPageState extends State<IkanTawarPage> {
                       ],
                     ),
                   ),
-                  SliverGrid(
-                    gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        if (index == 0) {
-                          return Card(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 4,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg',
-                                      height: 90,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "Ikan Payau",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const Text(
-                                    "Rp 60.000",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.cyan,
-                                    ),
-                                  ),
-                                ],
+                  FutureBuilder<List<dynamic>>(
+                    future: freshwaterFish,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SliverFillRemaining(
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (snapshot.hasError || errorMessage != null) {
+                        return SliverFillRemaining(
+                          child: Center(
+                            child: Text(errorMessage ?? 'Error loading fish data'),
+                          ),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const SliverFillRemaining(
+                          child: Center(child: Text('No fish found')),
+                        );
+                      }
+
+                      return SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 1,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            final fish = snapshot.data![index];
+                            return Card(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                            ),
-                          );
-                        } else {
-                          return Card(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 4,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Image.network(
-                                      'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
-                                      height: 90,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
+                              elevation: 4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        fish['image_url'] ?? 'https://via.placeholder.com/150',
+                                        height: 90,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "Ikan Bandeng",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      fish['name'] ?? 'Unknown Fish',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  const Text(
-                                    "Rp 25.000 /kg",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.cyan,
+                                    Text(
+                                      'Rp ${fish['price']?.toString() ?? '0'}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.cyan,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                      },
-                      childCount: 2,
-                    ),
+                            );
+                          },
+                          childCount: snapshot.data!.length,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

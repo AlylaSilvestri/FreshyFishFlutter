@@ -47,43 +47,40 @@ class ProfilePageState extends State<ProfilePage> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
+                height: 90,
                 color: const Color.fromARGB(255, 0, 150, 200),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    Image.asset('assets/logo_putih.png', scale: 1.5),
-                    const SizedBox(height: 20),
-                    const CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHDT8TZp9Ized8FRjPMwrliwxAbd6JqlxZqQ&s',
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-                        child:
-                        FutureBuilder(
-                            future: me,
-                            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator(
-                              color: Color.fromARGB(255, 0, 150, 200), // Your app's blue color
-                              backgroundColor: Colors.white,
-                            );
-                          } else if (snapshot.hasError) {
-                            return const Text("error");
-                          } else {
-                            return Text("${snapshot.data["data"]["name"]}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center,
-                            );
-                          }
-                          }
+                child:
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 45),
+                        Row(
+                          children: [
+                            const SizedBox(width: 20),
+                            Align(
+                              child:
+                              FutureBuilder(
+                                  future: me,
+                                  builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return const CircularProgressIndicator(
+                                        color: Color.fromARGB(255, 0, 150, 200), // Your app's blue color
+                                        backgroundColor: Colors.white,
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return const Text("error");
+                                    } else {
+                                      return Text("${snapshot.data["data"]["name"]}", style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center,
+                                      );
+                                    }
+                                  }
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
               ),
               Padding(
                   padding: EdgeInsets.fromLTRB(20, 15, 0, 0),
@@ -132,6 +129,33 @@ class ProfilePageState extends State<ProfilePage> {
                         return const Text("error");
                       } else {
                         return Text("${snapshot.data["data"]["email"]}"
+                        );
+                      }
+                    }
+                ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child:Text(
+                  'Phone', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ),
+              const Divider(endIndent: 20, indent: 20),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child: FutureBuilder(
+                    future: me,
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator(
+                          color: Color.fromARGB(255, 0, 150, 200), // Your app's blue color
+                          backgroundColor: Colors.white,
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Text("error");
+                      } else {
+                        return Text("${snapshot.data["data"]["phone_number"]}",
                         );
                       }
                     }

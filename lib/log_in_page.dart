@@ -73,7 +73,7 @@ class _LogInPageState extends State<LogInPage> {
                       },
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Password (min: 6)',
                         prefixIcon: const Icon(Icons.lock_rounded),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30.0),
