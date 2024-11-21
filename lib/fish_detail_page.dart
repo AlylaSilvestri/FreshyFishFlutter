@@ -156,26 +156,6 @@ class _FishDetailPageState extends State<FishDetailPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ConfirmOrderPage(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-                                ),
-                                child: const Text(
-                                  'Check Out',
-                                  style: TextStyle(fontSize: 16, color: Colors.white),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ],

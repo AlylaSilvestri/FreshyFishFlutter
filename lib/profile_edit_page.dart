@@ -78,11 +78,6 @@ class ProfileEditPageState extends State<ProfileEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 0, 150, 200),
-        title: Image.asset('assets/logo_putih.png', scale: 1.5),
-      ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
@@ -91,31 +86,38 @@ class ProfileEditPageState extends State<ProfileEditPage> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
+                height: 90,
                 color: const Color.fromARGB(255, 0, 150, 200),
                 child:
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    const CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHDT8TZp9Ized8FRjPMwrliwxAbd6JqlxZqQ&s',
-                      ),
+                    SizedBox(height: 35),
+                    Row(
+                      children: [
+                        SizedBox(width: 20),
+                        IconButton(
+                            onPressed: (){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
+                            },
+                            icon: Icon(Icons.arrow_back, color: Colors.white, size: 35)
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "${user.name}",
+                          style: TextStyle(
+                            fontSize: 27,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "${user.name}",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
                   ],
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
               const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                 child: Text(
                   "Address",

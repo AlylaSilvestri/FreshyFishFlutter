@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/confirm_order_page.dart';
+import 'package:freshy_fish/home_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
+import 'package:freshy_fish/udah_beli_page.dart';
 import 'package:http/http.dart' as http;
 import 'main_page.dart';
 
@@ -85,7 +87,7 @@ class CartPageState extends State<CartPage> {
     try {
       String? token = await storageService.getToken();
       var response = await http.post(
-        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$ID_user/add-product"),
+        Uri.parse("https://freshyfishapi.ydns.eu/api/updatekuantitas/$productId"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': "Bearer $token",
@@ -120,7 +122,7 @@ class CartPageState extends State<CartPage> {
       } else {
         // Reduce quantity by 1
         var response = await http.post(
-          Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$ID_user/reduce-product"),
+          Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/kurangin"),
           headers: <String, String>{
             'Content-Type': 'application/json',
             'Authorization': "Bearer $token",
@@ -139,7 +141,6 @@ class CartPageState extends State<CartPage> {
           });
         } else {
           print('Failed to reduce quantity: ${response.body}');
-          throw Exception('Failed to reduce quantity: ${response.body}');
         }
       }
     } catch (e) {
@@ -154,10 +155,10 @@ class CartPageState extends State<CartPage> {
     try {
       String? token = await storageService.getToken();
       var response = await http.delete(
-        Uri.parse("https://freshyfishapi.ydns.eu/api/detail-keranjang/${ID_product}"),
+        Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/$cartItemId"),
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'Authorization': "Bearer $token",
+          'Authorization': "Bearer $token"
         },
       );
 
@@ -286,7 +287,7 @@ class CartPageState extends State<CartPage> {
                                       image: DecorationImage(
                                         fit: BoxFit.fill,
                                         image: NetworkImage(
-                                          "https://freshyfishapi.ydns.eu/storage/fish_photos/${item['fish_photo']}",
+                                          "https://freshyfishapi.ydns.eu/storage/fish_photos/${item['produk']['fish_photo']}",
                                         ),
                                       ),
                                       borderRadius: const BorderRadius.all(
@@ -312,13 +313,16 @@ class CartPageState extends State<CartPage> {
                                                 ),
                                               ),
                                             ),
-                                            const Spacer(),
-                                            IconButton(
-                                              onPressed: () => deleteCartItem(
-                                                  item['ID_produk'].toString()),
-                                              icon: const Icon(Icons.delete,
-                                                  color: Colors.red),
-                                            ),
+                                            // const Spacer(),
+                                            // IconButton(
+                                            //   onPressed: () {
+                                            //     print(item);
+                                            //     deleteCartItem(
+                                            //         item['produk']['ID_keranjang'].toString());
+                                            //   },
+                                            //   icon: const Icon(Icons.delete,
+                                            //       color: Colors.red),
+                                            // ),
                                           ],
                                         ),
                                         Container(
@@ -328,6 +332,8 @@ class CartPageState extends State<CartPage> {
                                             item['produk']['fish_description'] ?? '',
                                             style:
                                             const TextStyle(fontSize: 14),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                         Row(
@@ -360,7 +366,7 @@ class CartPageState extends State<CartPage> {
                                                     }
                                                   },
                                                   icon: const Icon(
-                                                    Icons.remove_circle,
+                                                    Icons.add_circle,
                                                     color: Colors.orange,
                                                   ),
                                                 ),
@@ -465,13 +471,26 @@ class CartPageState extends State<CartPage> {
                       ],
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ConfirmOrderPage(),
-                          ),
-                        );
+                      onPressed: () async {
+                        String? token = await storageService.getToken();
+                        await http.post(
+                          Uri.parse("https://freshyfishapi.ydns.eu/api/pesanan/buatpesanan"),
+                          headers: <String, String>{
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': "Bearer $token",
+                          },
+                          body: jsonEncode({'payment_method': 'QRIS'}),
+                        ).then((response) {
+                          if (response.statusCode == 201) {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => UdahBeliPage(),
+                            ));
+                          } else {
+                            print(response.body);
+                            print("Gagal Karena Adel");
+                          }
+                        });
                       },
                       style: ButtonStyle(
                         backgroundColor:

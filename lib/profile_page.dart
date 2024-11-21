@@ -5,6 +5,8 @@ import 'package:freshy_fish/log_in_page.dart';
 import 'package:freshy_fish/profile_edit_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -173,7 +175,12 @@ class ProfilePageState extends State<ProfilePage> {
                 height: 47,
                 width: 321,
                 child: FloatingActionButton(
-                  onPressed: (){},
+                  onPressed: () async {
+                    final Uri url = Uri.parse('https://freshyfishapp.ydns.eu/');
+                    if (!await launchUrl(url)) {
+                      throw Exception('Could not launch $url');
+                    }
+                  },
                   backgroundColor: Colors.blue.shade50,
                   child: Icon(
                     Icons.add_rounded,
@@ -181,8 +188,8 @@ class ProfilePageState extends State<ProfilePage> {
                     size: 25,
                   ),
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Color.fromARGB(255, 0, 150, 200), width: 2), // Blue border
-                    borderRadius: BorderRadius.circular(10), // Ensures circular shape
+                    side: BorderSide(color: Color.fromARGB(255, 0, 150, 200), width: 2),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
