@@ -20,9 +20,11 @@ class HomePageState extends State<HomePage> {
   late Future<List<Map<String, dynamic>>> produk;
   String? ID_user;
   StorageService storageService = StorageService();
-  String searchQuery = '';
+  TextEditingController searchController = TextEditingController();
   List<Map<String, dynamic>> filteredProducts = [];
+  List<Map<String, dynamic>> allProducts = [];
   bool isLoading = false;
+  bool isSearching = false;
 
   @override
   void initState() {
@@ -63,7 +65,12 @@ class HomePageState extends State<HomePage> {
       if (response.statusCode == 200) {
         print(response.body);
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((item) => item as Map<String, dynamic>).toList();
+        var products = data.map((item) => item as Map<String, dynamic>).toList();
+        setState(() {
+          allProducts = products;
+          filteredProducts = products;
+        });
+        return products;
       } else {
         throw Exception('Failed to load products');
       }
@@ -76,7 +83,24 @@ class HomePageState extends State<HomePage> {
 
   void filterProducts(String query) {
     setState(() {
-      searchQuery = query;
+      isSearching = query.isNotEmpty;
+      if (query.isEmpty) {
+        filteredProducts = allProducts;
+      } else {
+        filteredProducts = allProducts.where((product) {
+          final fishType = product['fish_type'].toString().toLowerCase();
+          final searchLower = query.toLowerCase();
+          return fishType.contains(searchLower);
+        }).toList();
+      }
+    });
+  }
+
+  void clearSearch() {
+    setState(() {
+      searchController.clear();
+      filteredProducts = allProducts;
+      isSearching = false;
     });
   }
 
@@ -92,11 +116,11 @@ class HomePageState extends State<HomePage> {
               color: const Color.fromARGB(255, 0, 150, 200),
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 45),
                   Row(
                     children: [
                       const SizedBox(width: 20),
-                      Image.asset('assets/logo_keranjang_doang.png', scale: 1.5),
+                      Image.asset('assets/logo_keranjang_doang.png', scale: 1.7),
                       const SizedBox(width: 25),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +128,7 @@ class HomePageState extends State<HomePage> {
                           const Text(
                             'Hi,',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -123,7 +147,7 @@ class HomePageState extends State<HomePage> {
                                   child: Text(
                                     snapshot.data?["data"]?["name"] ?? "User",
                                     style: const TextStyle(
-                                      fontSize: 24,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
@@ -146,13 +170,12 @@ class HomePageState extends State<HomePage> {
                         },
                         icon: const Icon(
                           Icons.shopping_cart_outlined,
-                          size: 40,
+                          size: 35,
                           color: Colors.white,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
                   Row(
                     children: [
                       const SizedBox(width: 15),
@@ -168,6 +191,7 @@ class HomePageState extends State<HomePage> {
                           children: [
                             Flexible(
                               child: TextField(
+                                controller: searchController,
                                 onChanged: filterProducts,
                                 decoration: const InputDecoration(
                                   hintText: "Search...",
@@ -175,6 +199,11 @@ class HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
+                            if (isSearching)
+                              IconButton(
+                                  onPressed: clearSearch,
+                                  icon: const Icon(Icons.clear, color: Colors.grey),
+                              ),
                           ],
                         ),
                       ),
@@ -287,11 +316,20 @@ class HomePageState extends State<HomePage> {
                         );
                       }
 
-                      var products = snapshot.data!;
-                      if (searchQuery.isNotEmpty) {
-                        products = products.where((product) =>
-                            product['name'].toString().toLowerCase().contains(searchQuery.toLowerCase())
-                        ).toList();
+                      var products = isSearching ? filteredProducts : snapshot.data!;
+
+                      if (products.isEmpty) {
+                        return const SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'No fish found matching your search',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        );
                       }
 
                       return SliverGrid(
@@ -309,12 +347,12 @@ class HomePageState extends State<HomePage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => FishDetailPage(
-                                      fishName: product['fish_type'] ?? 'Unknown',
-                                      fishPrice: 'Rp ${product['fish_price']?.toString() ?? '0'}',
-                                      imageUrl: "https://freshyfishapi.ydns.eu/storage/fish_photos/${product["fish_photo"]}" ?? '',
-                                      fishDesc: "${product["fish_description"]}" ?? "",
-                                      productId: product['ID_produk']?.toString() ?? '',
-                                      userId: 'ID_user' ?? '',
+                                    fishName: product['fish_type'] ?? 'Unknown',
+                                    fishPrice: 'Rp ${product['fish_price']?.toString() ?? '0'}',
+                                    imageUrl: "https://freshyfishapi.ydns.eu/storage/fish_photos/${product["fish_photo"]}" ?? '',
+                                    fishDesc: "${product["fish_description"]}" ?? "",
+                                    productId: product['ID_produk']?.toString() ?? '',
+                                    userId: 'ID_user' ?? '',
                                   )
                                   ),
                                 );
@@ -329,7 +367,6 @@ class HomePageState extends State<HomePage> {
                           childCount: products.length,
                         ),
                       );
-
                     },
                   ),
                   const SliverToBoxAdapter(

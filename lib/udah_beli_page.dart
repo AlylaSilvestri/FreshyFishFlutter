@@ -15,12 +15,12 @@ class OrderConfirmedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Colors.blue,
+        color: const Color.fromARGB(255, 0, 150, 200),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(
-              child: Icon(Icons.check_circle_rounded, color: Colors.white, size: 180,)
+              child: Icon(Icons.check_circle_rounded, color: Colors.white, size: 220,)
             ),
             SizedBox(height: 16.0),
             Text(
@@ -36,7 +36,7 @@ class OrderConfirmedScreen extends StatelessWidget {
               'Thank you for your order.\nYour order is being processed.',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 16.0,
+                fontSize: 17.0,
               ),
               textAlign: TextAlign.center,
             ),
@@ -45,7 +45,7 @@ class OrderConfirmedScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
               },
-              child: Text('Continue Shopping'),
+              child: Text('Continue Shopping', style: TextStyle(color: const Color.fromARGB(255, 0, 150, 200),)),
             ),
           ],
         ),

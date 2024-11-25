@@ -1,11 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/confirm_order_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
-
 import 'cart_page.dart';
+import 'package:intl/intl.dart';
 
 class FishDetailPage extends StatefulWidget {
   final String fishName;

@@ -1,10 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/Models/user.dart';
 import 'package:freshy_fish/log_in_page.dart';
 import 'package:freshy_fish/main_page.dart';
-import 'package:freshy_fish/profile_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,292 +14,327 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class ProfileEditPageState extends State<ProfileEditPage> {
-  bool passwordVisible = false;
-  StorageService storageService = StorageService();
-  User user = new User();
-  late String id;
+  final StorageService _storageService = StorageService();
+  final User _user = User();
+  late String _userId;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    getMe();
+    _fetchUserProfile();
   }
 
-  Future<void> updateAddress() async {
-    StorageService storageService = StorageService();
-    String? token = await storageService.getToken();
-
-    final response = await http.put(
-      Uri.parse('https://freshyfishapi.ydns.eu/api/auth/user/$id'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json'
-      },
-      body: user.updatetojson()
-    );
-
-    if (response.statusCode == 200) {
-      // Navigate back to profile page after successful update
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainPage()),
+  Future<void> _fetchUserProfile() async {
+    try {
+      String? token = await _storageService.getToken();
+      var response = await http.get(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer $token",
+        },
       );
-    } else {
-      print(response.body);
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        print(data);
+        setState(() {
+          _user.name = data["data"]["name"];
+          _user.email = data["data"]["email"];
+          _user.address = data["data"]["address"];
+          _user.phone_number = data["data"]["phone_number"];
+          _userId = data["data"]["ID_user"].toString();
+        });
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update address')),
+        const SnackBar(content: Text('Failed to load profile')),
       );
     }
   }
 
-  void getMe() async {
-    String? token = await storageService.getToken();
-    var response = await http.get(
-      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer $token",
-      },
-    );
-    Map<String, dynamic> data = jsonDecode(response.body);
-    setState(() {
-      user.name = data["data"]["name"];
-      user.email = data["data"]["email"];
-      user.address = data["data"]["address"];
-      user.phone_number = data["data"]["phone_number"];
-      id = data["data"]["ID_user"].toString();
-      print(id);
-    });
+  Future<void> _updateProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      String? token = await _storageService.getToken();
+      final response = await http.put(
+          Uri.parse('https://freshyfishapi.ydns.eu/api/auth/user/$_userId'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json'
+          },
+          body: _user.updatetojson()
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update profile')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred')),
+      );
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    try {
+      String? token = await _storageService.getToken();
+      final response = await http.delete(
+          Uri.parse("https://freshyfishapi.ydns.eu/api/auth/delete"),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer $token",
+          }
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LogInPage())
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to delete account"))
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("An error occurred"))
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+            'Edit Profile',
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold
+            )
+        ),
+      ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: 90,
-                color: const Color.fromARGB(255, 0, 150, 200),
-                child:
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 35),
-                    Row(
-                      children: [
-                        SizedBox(width: 20),
-                        IconButton(
-                            onPressed: (){
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
-                            },
-                            icon: Icon(Icons.arrow_back, color: Colors.white, size: 35)
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          "${user.name}",
-                          style: TextStyle(
-                            fontSize: 27,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProfileHeader(),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'Address',
+                  initialValue: _user.address,
+                  onChanged: (value) => _user.address = value,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Please enter your address'
+                      : null,
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Address",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const SizedBox(height: 15),
+                _buildTextField(
+                  label: 'Email',
+                  initialValue: _user.email,
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: (value) => _user.email = value,
+                  validator: (value) => _validateEmail(value),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  onChanged: (value) {
-                    user.address = value;
-                  },
-                  style: TextStyle(fontSize: 13),
-                  controller: TextEditingController(text: user.address),
-                  decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 50),
-                    labelText: 'Address',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
+                const SizedBox(height: 15),
+                _buildTextField(
+                  label: 'Phone',
+                  initialValue: _user.phone_number,
+                  keyboardType: TextInputType.phone,
+                  onChanged: (value) => _user.phone_number = value,
+                  validator: (value) => _validatePhone(value),
                 ),
-              ),
-              const SizedBox(height: 15),
-              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Email",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  onChanged: (value) {
-                    user.email = value;
-                  },
-                  controller: TextEditingController(text: user.email),
-                  decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 50),
-                    labelText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Phone",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  onChanged: (value){
-                    user.phone_number = value;
-                  },
-                  controller: TextEditingController(text: user.phone_number),
-                  decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
-                    labelText: 'Phone',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Password",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  onChanged: (value) {
-                    user.password = value;
-                  },
+                const SizedBox(height: 15),
+                _buildTextField(
+                  label: 'Password',
                   obscureText: true,
-                  decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
-                    labelText: 'Password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
+                  onChanged: (value) => _user.password = value,
+                  validator: (value) => _validatePassword(value),
                 ),
-              ),
-              const SizedBox(height: 15),
-              const Padding(padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
-                child: Text(
-                  "Confirm Password",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  onChanged: (value) {
-                    user.password_confirmation = value;
-                  },
+                const SizedBox(height: 15),
+                _buildTextField(
+                  label: 'Confirm Password',
                   obscureText: true,
-                  decoration: InputDecoration(
-                    constraints: const BoxConstraints(maxWidth: 350, maxHeight: 40),
-                    labelText: 'Confirm Password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
+                  onChanged: (value) => _user.password_confirmation = value,
+                  validator: (value) => _validateConfirmPassword(value),
                 ),
-              ),
-              const SizedBox(height: 15),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          updateAddress();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 0, 150, 200), // Set button color
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          String? token = await storageService.getToken();
-                          http.delete(Uri.parse("https://freshyfishapi.ydns.eu/api/auth/delete"),
-                            headers: <String, String>{
-                              'Content-Type': 'application/json',
-                              'Authorization': "Bearer $token",
-                            }).then((response) {
-                            if (response.statusCode == 200){
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogInPage()));
-                            }
-                            else{
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Something Went Wrong!")));
-                            }
-                          });
-                          },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 220, 0, 0), // Set button color
-                        ),
-                        child: const Text(
-                          'Delete Account',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                    ),
-
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(height: 30),
+                _buildActionButtons()
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildProfileHeader() {
+    return Center(
+      child: Column(
+        children: [
+          Text(
+            _user.name ?? 'User Profile',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    String? initialValue,
+    bool obscureText = false,
+    required Function(String) onChanged,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      initialValue: initialValue,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300)
+        ),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300)
+        ),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.blue.shade500, width: 2)
+        ),
+      ),
+      onChanged: onChanged,
+      validator: validator,
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            onPressed: _updateProfile,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white, // Text and icon color
+              backgroundColor: Color.fromARGB(255, 0, 150, 200), // Button background color
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2, // Slight shadow for an elevated look
+            ),
+            child: const Text(
+              'Save Changes',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+        ),
+        // const SizedBox(width: 16),
+        // Expanded(
+        //   child: OutlinedButton(
+        //     onPressed: () => _showDeleteConfirmation(),
+        //     style: OutlinedButton.styleFrom(
+        //         foregroundColor: Colors.red,
+        //         side: BorderSide(color: Colors.red.shade300),
+        //         padding: const EdgeInsets.symmetric(vertical: 15),
+        //         shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(12)
+        //         )
+        //     ),
+        //     child: const Text(
+        //         'Delete Account',
+        //         style: TextStyle(
+        //             fontSize: 16,
+        //             fontWeight: FontWeight.bold
+        //         )
+        //     ),
+        //   ),
+        // ),
+      ],
+    );
+  }
+
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Account Deletion'),
+        content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _deleteAccount();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Validation methods
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter an email';
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return !emailRegex.hasMatch(value) ? 'Enter a valid email' : null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter a phone number';
+    final phoneRegex = RegExp(r'^\+?[0-9]{10,14}$');
+    return !phoneRegex.hasMatch(value) ? 'Enter a valid phone number' : null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter a password';
+    return value.length < 6 ? 'Password must be at least 6 characters' : null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please confirm your password';
+    return value != _user.password ? 'Passwords do not match' : null;
   }
 }

@@ -1,10 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:freshy_fish/home_page.dart';
+import 'package:freshy_fish/fish_detail_page.dart';
 import 'package:freshy_fish/main_page.dart';
-import 'package:freshy_fish/services/storage_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:freshy_fish/services/storage_service.dart';
 
 class IkanPayauPage extends StatefulWidget {
   const IkanPayauPage({super.key});
@@ -15,12 +14,18 @@ class IkanPayauPage extends StatefulWidget {
 
 class IkanPayauPageState extends State<IkanPayauPage> {
   late Future<Map<String, dynamic>> me;
+  late Future<List<dynamic>> brackishFishProducts;
   StorageService storageService = StorageService();
+  TextEditingController searchController = TextEditingController();
+  List<dynamic> filteredProducts = [];
+  List<dynamic> allProducts = [];
+  bool isSearching = false;
 
   @override
   void initState() {
     super.initState();
     me = getMe();
+    brackishFishProducts = getBrackishFishProducts();
   }
 
   Future<Map<String, dynamic>> getMe() async {
@@ -33,6 +38,48 @@ class IkanPayauPageState extends State<IkanPayauPage> {
       },
     );
     return jsonDecode(response.body);
+  }
+
+  Future<List<dynamic>> getBrackishFishProducts() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/produk/habitat/Ikan Payau"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      allProducts = data;
+      return data;
+    } else {
+      throw Exception('Failed to load brackish fish products');
+    }
+  }
+
+  void filterProducts(String query) {
+    setState(() {
+      isSearching = query.isNotEmpty;
+      if (query.isEmpty) {
+        filteredProducts = allProducts;
+      } else {
+        filteredProducts = allProducts.where((product) {
+          final fishType = product['fish_type'].toString().toLowerCase();
+          final searchLower = query.toLowerCase();
+          return fishType.contains(searchLower);
+        }).toList();
+      }
+    });
+  }
+  
+  void clearSearch() {
+    setState(() {
+      searchController.clear();
+      filteredProducts = allProducts;
+      isSearching = false;
+    });
   }
 
   @override
@@ -50,17 +97,19 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                   const SizedBox(height: 50),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 20),
-                      Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
+                      Image.asset('assets/logo_keranjang_doang.png', scale: 1.7),
                       const SizedBox(width: 10),
-                      const Text(
-                        'Hi, ',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
+                      const Text('Hi, ',
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
                       FutureBuilder(
                         future: me,
-                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                        builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const CircularProgressIndicator();
                           } else if (snapshot.hasError) {
@@ -69,25 +118,15 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                             return SizedBox(
                               width: 200,
                               child: Text(
-                                "${snapshot.data["data"]["name"]}",
+                                "${snapshot.data?["data"]["name"] ?? 'User'}",
                                 style: const TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            );
-                            Text(
-                              "${snapshot.data["data"]["name"]}",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             );
                           }
                         },
@@ -97,7 +136,7 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                   const SizedBox(height: 20),
                   Row(
                     children: [
-                      SizedBox(width: 15),
+                      const SizedBox(width: 15),
                       Container(
                         width: 280,
                         height: 40,
@@ -105,21 +144,29 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-                        child: const Row(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 25, vertical: 5),
+                        child: Row(
                           children: [
                             Flexible(
                               child: TextField(
-                                decoration: InputDecoration(
+                                controller: searchController,
+                                onChanged: filterProducts,
+                                decoration: const InputDecoration(
                                   hintText: "Search...",
                                   border: InputBorder.none,
                                 ),
                               ),
                             ),
+                            if (isSearching)
+                              IconButton(
+                                  onPressed: clearSearch,
+                                  icon: const Icon(Icons.clear, color: Colors.grey,)
+                              ),
                           ],
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Container(
                         width: 40,
                         height: 40,
@@ -127,7 +174,7 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.search,
                           color: Colors.grey,
                           size: 30,
@@ -151,11 +198,16 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                       children: [
                         const SizedBox(width: 15),
                         IconButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
-                            },
-                            color: Color.fromARGB(255, 0, 150, 200),
-                            icon: Icon(Icons.arrow_back_rounded, size: 30)
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MainPage(),
+                              ),
+                            );
+                          },
+                          color: const Color.fromARGB(255, 0, 150, 200),
+                          icon: const Icon(Icons.arrow_back_rounded, size: 30),
                         ),
                         const SizedBox(width: 10),
                         const Text(
@@ -169,104 +221,124 @@ class IkanPayauPageState extends State<IkanPayauPage> {
                       ],
                     ),
                   ),
-                  SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        if (index == 0) {
-                          return Card(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 4,
+                  FutureBuilder<List<dynamic>>(
+                    future: brackishFishProducts,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SliverToBoxAdapter(
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (snapshot.hasError) {
+                        return SliverToBoxAdapter(
+                          child: Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          ),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const SliverToBoxAdapter(
+                          child: Center(child: Text('No fish available')),
+                        );
+                      }
+
+                      var products = isSearching ? filteredProducts : snapshot.data!;
+
+                      if (products.isEmpty) {
+                        return const SliverToBoxAdapter(
+                          child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Javaen_barb.jpg/375px-Javaen_barb.jpg',
-                                      height: 90,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "Ikan Payau",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const Text(
-                                    "Rp 60.000",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.cyan,
-                                    ),
-                                  ),
-                                ],
+                              padding: EdgeInsets.all(20.0),
+                              child: Text(
+                                'No fish found matching your search',
+                                style: TextStyle(fontSize: 16),
                               ),
                             ),
-                          );
-                        } else {
-                          return Card(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 4,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Image.network(
-                                      'https://www.deheus.id/siteassets/news/article/mengenal-ikan-bandeng/bandeng-hero-2.jpg?mode=crop&width=2552&height=1367',
-                                      height: 90,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
+                          ),
+                        );
+                      }
+
+                      // var products = searchController.text.isEmpty
+                      //     ? snapshot.data!
+                      //     : filteredProducts;
+
+                      return SliverGrid(
+                        gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 1,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            var product = products[index];
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FishDetailPage(
+                                      fishName: product['fish_type'],
+                                      fishPrice:
+                                      'Rp ${product['fish_price'].toString()}',
+                                      imageUrl:
+                                      'https://freshyfishapi.ydns.eu/storage/fish_photos/${product['fish_photo']}',
+                                      fishDesc: product['fish_description'],
+                                      productId: product['id'].toString(),
+                                      userId: product['ID_toko'].toString(),
                                     ),
                                   ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "Ikan Bandeng",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
+                                );
+                              },
+                              child: Card(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 4,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          'https://freshyfishapi.ydns.eu/storage/fish_photos/${product['fish_photo']}',
+                                          height: 90,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          const Icon(Icons.image_not_supported),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        product['fish_type'],
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Rp ${product['fish_price']} /kg',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.cyan,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 5),
-                                  const Text(
-                                    "Rp 25.000 /kg",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.cyan,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                      },
-                      childCount: 10,
-                    ),
+                            );
+                          },
+                          childCount: products.length,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

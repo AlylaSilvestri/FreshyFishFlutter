@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/cart_page.dart';
+import 'package:freshy_fish/main_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:freshy_fish/services/storage_service.dart';
 
 class OrderHistoryPage extends StatefulWidget {
   const OrderHistoryPage({super.key});
@@ -9,134 +13,289 @@ class OrderHistoryPage extends StatefulWidget {
 }
 
 class OrderHistoryPageState extends State<OrderHistoryPage> {
+  late Future<Map<String, dynamic>> me;
+  late Future<Map<String, dynamic>> orderFuture;
+  final StorageService storageService = StorageService();
+  String? ID_user;
+
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+  void initState() {
+    super.initState();
+    me = getMe();
+    orderFuture = Future.value({});
+  }
+
+  Future<Map<String, dynamic>> getMe() async {
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/auth/me"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to get user data: ${response.body}');
+    }
+
+    var data = jsonDecode(response.body);
+    setState(() {
+      ID_user = data["data"]["ID_user"].toString();
+      orderFuture = getOrderHistory();
+    });
+    return data;
+  }
+
+  Future<Map<String, dynamic>> getOrderHistory() async {
+    if (ID_user == null) throw Exception('User ID not found');
+
+    String? token = await storageService.getToken();
+    var response = await http.get(
+      Uri.parse("https://freshyfishapi.ydns.eu/api/pesanan/histori/$ID_user"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print(data);
+      return data;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load order history: ${response.body}');
+    }
+  }
+
+  Widget _buildOrderItem(Map<String, dynamic> order) {
+    return
+      Column(
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            color: const Color.fromARGB(255, 0, 150, 200),
-            child: Column(
-              children: [
-                const SizedBox(height: 50),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const SizedBox(width: 20),
-                    Image.asset('assets/logo_keranjang_doang.png', scale: 1.2),
-                    const SizedBox(width: 10),
-                    Text('Your Order History', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                  ],
-                ),
-                const SizedBox(height: 20),
-              ],
+        // Status Container
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
             ),
           ),
-          SizedBox(
-            height: 550,
-            child: ListView.builder(
-              itemCount: 6,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        border: Border.all( // This adds the border
-                          color: const Color.fromARGB(255, 0, 150, 200), // Border color
-                          width: 2.0,        // Border width
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.all(10),
-                            height: 80,
-                            width: 80,
-                            decoration: BoxDecoration(
-                              image: const DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(
-                                    'https://images.tokopedia.net/img/cache/700/VqbcmM/2021/11/17/534aa259-44f5-4e5d-935e-d9cd60f0eaf9.png'),
-                              ),
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(10)),
-                              border: Border.all( // This adds the border
-                                color: Colors.grey, // Border color
-                                width: 1.0,        // Border width
-                              ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Completed',
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                order['order_date'] ?? 'Unknown Date',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+
+        Column(
+          children: List.generate(
+            order['produk'].length,
+                (index) => Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
+                ),
+              ),
+              child: Column(
+                children: [
+                  // Product Details
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                  'https://freshyfishapi.ydns.eu/storage/fish_photos/${order['produk'][index]['fish_photo']}' ??
+                                      'https://via.placeholder.com/80'),
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          Column(
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(10, 10, 0, 0),
-                                child: const Text(
-                                  'Lele',
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold),
+                              Text(
+                                order['produk'][index]['fish_type'] ?? 'Unknown Product',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
                               ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                child: const Text(
-                                  'Ikan Tawar',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                child: const Text(
-                                  'Total 1 produk: Rp 90.000',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.cyan,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 7), // Adjust padding as needed
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context, MaterialPageRoute(builder: (context) => const CartPage()));
-                                  },
-                                  child: Text(
-                                    'beli lagi yu',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                      Color.fromARGB(255, 0, 150, 200),
-                                    ),
-                                    shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10), // Circular border with radius 10
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${order['produk'][index]['pivot']['quantity'] ?? 1} item • ${order['produk'][index]['habitat'] ?? 'Unknown Category'}',
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  );
-                }
+                  ),
+
+                  // Price and Actions
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Price per Item',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            Text(
+                              'Rp ${order['produk'][index]['fish_price'] ?? '0'}',
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MainPage(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade600,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'Buy Again',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          )
-        ],
-      ),
+          ),
+        ),
+
+      ],
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color.fromARGB(255, 0, 150, 200),
+        elevation: 1,
+        title: const Text(
+          'Order History',
+          style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: me,
+        builder: (context, meSnapshot) {
+          if (meSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (meSnapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Error: ${meSnapshot.error}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => setState(() { me = getMe(); }),
+                    child: const Text('Coba Lagi'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return FutureBuilder(
+            future: orderFuture,
+            builder: (context, orderSnapshot) {
+              if (orderSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: Color.fromARGB(255, 0, 150, 200),));
+              }
+
+              if (orderSnapshot.hasError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Empty.\nPlace Your Order First.',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final orders = orderSnapshot.data!["order_history"];
+
+              if (orders!.isEmpty) {
+                return const Center(
+                  child: Text('No order history yet'),
+                );
+              }
+
+              return Container(
+                height: 580,
+                child: ListView.builder(
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) => _buildOrderItem(orders[index]),
+                ),
+              );
+
+
+            },
+          );
+        },
+      ),
+    );
+  }
 }

@@ -6,6 +6,7 @@ import 'package:freshy_fish/services/storage_service.dart';
 import 'package:freshy_fish/udah_beli_page.dart';
 import 'package:http/http.dart' as http;
 import 'main_page.dart';
+import 'package:intl/intl.dart';
 
 class CartPage extends StatefulWidget {
   final String? userId;
@@ -30,11 +31,8 @@ class CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
-    me = getMe().then((userData){
-      keranjangFuture = getKeranjang();
-      return userData;
-    });
-
+    keranjangFuture = Future.value([]);
+    me = getMe();
   }
 
   Future<Map<String, dynamic>> getMe() async {
@@ -49,6 +47,7 @@ class CartPageState extends State<CartPage> {
     var data = jsonDecode(response.body);
     setState(() {
       ID_user = data["data"]["ID_user"].toString();
+      keranjangFuture = getKeranjang();
     });
     return data;
   }
@@ -86,27 +85,47 @@ class CartPageState extends State<CartPage> {
     setState(() => isLoading = true);
     try {
       String? token = await storageService.getToken();
-      var response = await http.post(
-        Uri.parse("https://freshyfishapi.ydns.eu/api/updatekuantitas/$productId"),
+
+      var cartDetailsResponse = await http.get(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/users/$ID_user/cart-details"),
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization': "Bearer $token",
         },
-        body: jsonEncode({'quantity': quantity, 'ID_produk' : productId}),
       );
 
-      if (response.statusCode == 200) {
-        print(response.body);
-        final updatedData = await getKeranjang();
-        setState(() {
-          keranjangFuture = Future.value(updatedData);
-          isLoading = false;
-        });
-      } else {
-        print(response.body);
-        throw Exception('Failed to update quantity: ${response.body}');
+      if (cartDetailsResponse.statusCode == 200){
+        var cartDetails = jsonDecode(cartDetailsResponse.body);
+        String cartId = cartDetails['ID_keranjang'].toString();
+
+        var response = await http.put(
+          Uri.parse("https://freshyfishapi.ydns.eu/api/detail-keranjang/$cartId"),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer $token",
+          },
+          body: jsonEncode({
+            'ID_produk': productId,
+            'quantity': quantity + 1
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          print(response.body);
+          final updatedData = await getKeranjang();
+          setState(() {
+            keranjangFuture = Future.value(updatedData);
+            isLoading = false;
+          });
+        } else {
+          print(response.body);
+          throw Exception('Failed to update quantity: ${response.body}');
+        }
       }
     } catch (e) {
+      print('Error updateing quantity: $e');
+      throw Exception('Error: $e');
+    } finally {
       setState(() => isLoading = false);
     }
   }
@@ -116,31 +135,54 @@ class CartPageState extends State<CartPage> {
     try {
       String? token = await storageService.getToken();
 
-      if (currentQuantity <= 1) {
-        // If quantity is 1 or less, delete the item
-        await deleteCartItem(productId);
-      } else {
-        // Reduce quantity by 1
-        var response = await http.post(
-          Uri.parse("https://freshyfishapi.ydns.eu/api/keranjang/kurangin"),
-          headers: <String, String>{
-            'Content-Type': 'application/json',
-            'Authorization': "Bearer $token",
-          },
-          body: jsonEncode({
-            'ID_produk': productId,
-            'quantity': currentQuantity - 1
-          }),
-        );
+      var cartDetailsResponse = await http.get(
+        Uri.parse("https://freshyfishapi.ydns.eu/api/users/$ID_user/cart-details"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+      );
 
-        if (response.statusCode == 200) {
-          print('Product quantity reduced successfully');
-          final updatedData = await getKeranjang();
-          setState(() {
-            keranjangFuture = Future.value(updatedData);
-          });
+      if (cartDetailsResponse.statusCode == 200) {
+        var cartDetails = jsonDecode(cartDetailsResponse.body);
+        String cartId = cartDetails['ID_keranjang'].toString();
+
+        if (currentQuantity <= 1) {
+          // Delete the item if quantity would become 0
+          var response = await http.delete(
+            Uri.parse("https://freshyfishapi.ydns.eu/api/detail-keranjang/$cartId"),
+            headers: <String, String>{
+              'Content-Type': 'application/json',
+              'Authorization': "Bearer $token",
+            },
+          );
+
+          if (response.statusCode == 200) {
+            final updatedData = await getKeranjang();
+            setState(() {
+              keranjangFuture = Future.value(updatedData);
+            });
+          }
         } else {
-          print('Failed to reduce quantity: ${response.body}');
+          // Reduce quantity by 1
+          var response = await http.put(
+            Uri.parse("https://freshyfishapi.ydns.eu/api/detail-keranjang/$cartId"),
+            headers: <String, String>{
+              'Content-Type': 'application/json',
+              'Authorization': "Bearer $token",
+            },
+            body: jsonEncode({
+              'ID_produk': productId,
+              'quantity': currentQuantity - 1
+            }),
+          );
+
+          if (response.statusCode == 200) {
+            final updatedData = await getKeranjang();
+            setState(() {
+              keranjangFuture = Future.value(updatedData);
+            });
+          }
         }
       }
     } catch (e) {
@@ -181,11 +223,9 @@ class CartPageState extends State<CartPage> {
     for (var item in items) {
 
       if (item['produk'] != null && item['produk']['fish_price'] != null) {
-        // No need for string replacements, just convert directly
         String priceStr = item['produk']['fish_price'].toString();
 
         try {
-
           double price = double.parse(priceStr);
           int quantity = item['quantity'] ?? 1;
           subtotal += price * quantity;
@@ -195,8 +235,7 @@ class CartPageState extends State<CartPage> {
       }
     }
 
-    shippingCost = 10000;
-
+    shippingCost = 3500;
     setState(() {
       totalPrice = subtotal + shippingCost;
     });
@@ -250,7 +289,7 @@ class CartPageState extends State<CartPage> {
             ),
             SizedBox(
               height: 450,
-              child: FutureBuilder<List<Map<String, dynamic>>>(
+              child: FutureBuilder(
                 future: keranjangFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting ||
@@ -313,16 +352,6 @@ class CartPageState extends State<CartPage> {
                                                 ),
                                               ),
                                             ),
-                                            // const Spacer(),
-                                            // IconButton(
-                                            //   onPressed: () {
-                                            //     print(item);
-                                            //     deleteCartItem(
-                                            //         item['produk']['ID_keranjang'].toString());
-                                            //   },
-                                            //   icon: const Icon(Icons.delete,
-                                            //       color: Colors.red),
-                                            // ),
                                           ],
                                         ),
                                         Container(
@@ -358,15 +387,13 @@ class CartPageState extends State<CartPage> {
                                               children: [
                                                 IconButton(
                                                   onPressed: () {
-                                                    if (item['quantity'] > 1) {
-                                                      updateQuantity(
-                                                        item['ID_produk'].toString(),
-                                                        item['quantity'] - 1,
-                                                      );
-                                                    }
+                                                    reduceQuantity(
+                                                      item['ID_produk'].toString(),
+                                                      item['quantity'],
+                                                    );
                                                   },
                                                   icon: const Icon(
-                                                    Icons.add_circle,
+                                                    Icons.remove_circle,
                                                     color: Colors.orange,
                                                   ),
                                                 ),
@@ -385,13 +412,13 @@ class CartPageState extends State<CartPage> {
                                                 ),
                                                 IconButton(
                                                   onPressed: () {
-                                                    reduceQuantity(
+                                                    updateQuantity(
                                                       item['ID_produk'].toString(),
                                                       item['quantity'],
                                                     );
                                                   },
                                                   icon: const Icon(
-                                                    Icons.remove_circle,
+                                                    Icons.add_circle,
                                                     color: Colors.orange,
                                                   ),
                                                 ),
@@ -431,7 +458,7 @@ class CartPageState extends State<CartPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Shipping Cost',
+                          'Handling Fees',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -486,6 +513,12 @@ class CartPageState extends State<CartPage> {
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) => UdahBeliPage(),
                             ));
+                          } else if (response.statusCode == 400) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(response.body[0]),
+                              ),
+                            );
                           } else {
                             print(response.body);
                             print("Gagal Karena Adel");
