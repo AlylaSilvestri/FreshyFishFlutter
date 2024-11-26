@@ -322,4 +322,5 @@ class DetailRow extends StatefulWidget {
     // TODO: implement createState
     throw UnimplementedError();
   }
+
 }

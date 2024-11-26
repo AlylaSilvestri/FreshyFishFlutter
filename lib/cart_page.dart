@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:freshy_fish/confirm_order_page.dart';
 import 'package:freshy_fish/home_page.dart';
+import 'package:freshy_fish/order_review_page.dart';
 import 'package:freshy_fish/services/storage_service.dart';
 import 'package:freshy_fish/udah_beli_page.dart';
 import 'package:http/http.dart' as http;
@@ -245,7 +246,7 @@ class CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(
+        child:  Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(

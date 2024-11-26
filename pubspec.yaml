@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+#  midtrans_sdk
   url_launcher: ^6.3.1
   intl: ^0.20.0
   flutter:

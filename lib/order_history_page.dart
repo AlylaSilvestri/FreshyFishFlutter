@@ -78,7 +78,7 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: Colors.yellow.shade50,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
@@ -88,9 +88,9 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Completed',
+                'Pending',
                 style: TextStyle(
-                  color: Colors.blue.shade700,
+                  color: Colors.yellow.shade700,
                   fontWeight: FontWeight.bold,
                 ),
               ),

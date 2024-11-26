@@ -80,29 +80,25 @@ class _LogInPageState extends State<LogInPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: isRememberMe,
-                              onChanged: (value) {
-                                setState(() {
-                                  isRememberMe = value!;
-                                });
-                              },
-                            ),
-                            const Text("Remember me"),
-                          ],
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text('Forgot password?'),
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 30),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Row(
+                    //       children: [
+                    //         Checkbox(
+                    //           value: isRememberMe,
+                    //           onChanged: (value) {
+                    //             setState(() {
+                    //               isRememberMe = value!;
+                    //             });
+                    //           },
+                    //         ),
+                    //         const Text("Remember me"),
+                    //       ],
+                    //     ),
+                    //   ],
+                    // ),
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 47,
